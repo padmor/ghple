@@ -32,6 +32,16 @@
     </div>
   </main>
   <footer class="footer"><div class="footer-inner"><span>© 2026 Gid’s Beverages &amp; Health Products Ltd.</span><a href="support.html">Help &amp; policies</a><a href="index.html">Back to shop</a></div></footer>
-  <script>document.getElementById('track-form').addEventListener('submit',event=>{event.preventDefault();if(!event.currentTarget.reportValidity())return;const message=document.getElementById('trackingMessage');message.innerHTML='<strong>No order record in this demo.</strong> Nothing was sent or saved. Contact GBHPL with your reference for help. Never share your Mobile Money PIN.';message.scrollIntoView({behavior:'smooth',block:'nearest'});});</script>
+  <script>
+    document.getElementById("track-form").addEventListener("submit", event => {
+      event.preventDefault();
+      if (!event.currentTarget.reportValidity()) return;
+
+      const message = document.getElementById("trackingMessage");
+      message.innerHTML =
+        "<strong>No order record in this demo.</strong> Nothing was sent or saved. Contact GBHPL with your reference for help. Never share your Mobile Money PIN.";
+      message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  </script>
 </body>
 </html>

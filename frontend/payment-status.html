@@ -28,7 +28,12 @@
   </main>
   <footer class="footer"><div class="footer-inner"><span>© 2026 Gid’s Beverages &amp; Health Products Ltd.</span><a href="support.html">Help &amp; policies</a><a href="index.html">Back to shop</a><span>Prototype · No payment processed</span></div></footer>
   <script>
-    document.getElementById("checkStatus").addEventListener("click",()=>{const m=document.getElementById("statusMessage");m.textContent="Status lookup is not connected in this preview. No payment or order has been started.";m.classList.add("show")});
+    document.getElementById("checkStatus").addEventListener("click", () => {
+      const message = document.getElementById("statusMessage");
+      message.textContent =
+        "Status lookup is not connected in this preview. No payment or order has been started.";
+      message.classList.add("show");
+    });
   </script>
 </body>
 </html>

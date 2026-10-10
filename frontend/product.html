@@ -115,26 +115,176 @@
   </aside>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script>
-    const products={"500ml":{id:"500ml",size:"500 ml",price:105},"1000ml":{id:"1000ml",size:"1000 ml",price:170}};
-    const storageKey="gbhpl-preview-cart-v1",cart=new Map();let selected="500ml",quantity=1,lastFocus=null,toastTimer;
-    const drawer=document.getElementById("drawer"),toast=document.getElementById("toast");
-    try { const saved=JSON.parse(sessionStorage.getItem(storageKey)||"[]"); if(Array.isArray(saved)) saved.forEach(row=>{const p=products[row.id],q=Number(row.quantity);if(p&&Number.isInteger(q)&&q>0&&q<100)cart.set(p.id,{...p,quantity:q})}); } catch {}
-    const money=n=>`GH₵${n.toLocaleString("en-GH")}`;
-    function render(){const count=[...cart.values()].reduce((s,x)=>s+x.quantity,0);document.getElementById("bagCount").textContent=count;document.getElementById("bagOpen").setAttribute("aria-label",`Open shopping bag, ${count} ${count===1?"item":"items"}`);document.getElementById("drawerCount").textContent=count?`(${count})`:"";
-      const host=document.getElementById("cartItems"),items=[...cart.values()];host.innerHTML=items.length?items.map(x=>`<div class="cart-row"><div><h3>Gid’s Apple Cider Vinegar</h3><p>${x.size}</p><div class="cart-controls"><button type="button" data-qty="${x.id}" data-delta="-1" aria-label="Decrease ${x.size} quantity">−</button><span>${x.quantity}</span><button type="button" data-qty="${x.id}" data-delta="1" aria-label="Increase ${x.size} quantity">+</button><button type="button" class="remove" data-remove="${x.id}">Remove</button></div></div><strong>${money(x.price*x.quantity)}</strong></div>`).join(""):`<div class="empty">Your bag is empty.<br><br><a href="index.html#shop">Continue shopping</a></div>`;
-      document.getElementById("subtotal").textContent=money(items.reduce((s,x)=>s+x.price*x.quantity,0));try{sessionStorage.setItem(storageKey,JSON.stringify(items.map(({id,quantity})=>({id,quantity}))))}catch{} }
-    function updateProduct(){const p=products[selected];document.getElementById("selectedPrice").textContent=money(p.price);document.getElementById("addToBag").textContent=`Add to bag · ${money(p.price*quantity)}`;document.querySelectorAll("[data-size]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.size===selected)));}
-    function openBag(){lastFocus=document.activeElement;document.body.classList.add("cart-open");drawer.inert=false;drawer.setAttribute("aria-hidden","false");document.getElementById("bagClose").focus();}
-    function closeBag(){document.body.classList.remove("cart-open");drawer.setAttribute("aria-hidden","true");drawer.inert=true;if(lastFocus)lastFocus.focus();}
-    function showToast(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2200);}
-    document.querySelectorAll("[data-size]").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.size;updateProduct()}));
-    document.getElementById("decrease").addEventListener("click",()=>{quantity=Math.max(1,quantity-1);document.getElementById("quantity").value=quantity;updateProduct()});
-    document.getElementById("increase").addEventListener("click",()=>{quantity=Math.min(99,quantity+1);document.getElementById("quantity").value=quantity;updateProduct()});
-    document.getElementById("addToBag").addEventListener("click",()=>{const p=products[selected],line=cart.get(p.id)||{...p,quantity:0};line.quantity+=quantity;cart.set(p.id,line);render();showToast(`${p.size} added to your bag`)});
-    document.getElementById("cartItems").addEventListener("click",e=>{const b=e.target.closest("[data-qty]"),r=e.target.closest("[data-remove]");if(b){const x=cart.get(b.dataset.qty);x.quantity+=Number(b.dataset.delta);if(x.quantity<=0)cart.delete(x.id);render()}if(r){cart.delete(r.dataset.remove);render()}});
-    document.getElementById("bagOpen").addEventListener("click",openBag);document.getElementById("bagClose").addEventListener("click",closeBag);document.getElementById("backdrop").addEventListener("click",closeBag);
-    document.addEventListener("keydown",e=>{if(!document.body.classList.contains("cart-open"))return;if(e.key==="Escape"){closeBag();return}if(e.key==="Tab"){const a=[...drawer.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')],first=a[0],last=a[a.length-1];if(e.shiftKey&&(document.activeElement===first||!drawer.contains(document.activeElement))){e.preventDefault();last?.focus()}else if(!e.shiftKey&&(document.activeElement===last||!drawer.contains(document.activeElement))){e.preventDefault();first?.focus()}}});
-    const initialSize=new URLSearchParams(location.search).get("size");if(products[initialSize])selected=initialSize;render();updateProduct();
+    const products = {
+      "500ml": { id: "500ml", size: "500 ml", price: 105 },
+      "1000ml": { id: "1000ml", size: "1000 ml", price: 170 }
+    };
+    const storageKey = "gbhpl-preview-cart-v1";
+    const cart = new Map();
+    let selected = "500ml";
+    let quantity = 1;
+    let lastFocus = null;
+    let toastTimer;
+    const drawer = document.getElementById("drawer");
+    const toast = document.getElementById("toast");
+
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(storageKey) || "[]");
+      if (Array.isArray(saved)) {
+        saved.forEach(row => {
+          const product = products[row.id];
+          const savedQuantity = Number(row.quantity);
+          if (product && Number.isInteger(savedQuantity) && savedQuantity > 0 && savedQuantity < 100) {
+            cart.set(product.id, { ...product, quantity: savedQuantity });
+          }
+        });
+      }
+    } catch {}
+
+    const money = amount => `GH₵${amount.toLocaleString("en-GH")}`;
+
+    function render() {
+      const count = [...cart.values()].reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById("bagCount").textContent = count;
+      document.getElementById("bagOpen").setAttribute(
+        "aria-label",
+        `Open shopping bag, ${count} ${count === 1 ? "item" : "items"}`
+      );
+      document.getElementById("drawerCount").textContent = count ? `(${count})` : "";
+
+      const host = document.getElementById("cartItems");
+      const items = [...cart.values()];
+      host.innerHTML = items.length
+        ? items.map(item => `
+          <div class="cart-row">
+            <div>
+              <h3>Gid’s Apple Cider Vinegar</h3>
+              <p>${item.size}</p>
+              <div class="cart-controls">
+                <button type="button" data-qty="${item.id}" data-delta="-1" aria-label="Decrease ${item.size} quantity">−</button>
+                <span>${item.quantity}</span>
+                <button type="button" data-qty="${item.id}" data-delta="1" aria-label="Increase ${item.size} quantity">+</button>
+                <button type="button" class="remove" data-remove="${item.id}">Remove</button>
+              </div>
+            </div>
+            <strong>${money(item.price * item.quantity)}</strong>
+          </div>
+        `).join("")
+        : '<div class="empty">Your bag is empty.<br><br><a href="index.html#shop">Continue shopping</a></div>';
+
+      const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      document.getElementById("subtotal").textContent = money(subtotal);
+      try {
+        sessionStorage.setItem(
+          storageKey,
+          JSON.stringify(items.map(({ id, quantity }) => ({ id, quantity })))
+        );
+      } catch {}
+    }
+
+    function updateProduct() {
+      const product = products[selected];
+      document.getElementById("selectedPrice").textContent = money(product.price);
+      document.getElementById("addToBag").textContent =
+        `Add to bag · ${money(product.price * quantity)}`;
+      document.querySelectorAll("[data-size]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.size === selected));
+      });
+    }
+
+    function openBag() {
+      lastFocus = document.activeElement;
+      document.body.classList.add("cart-open");
+      drawer.inert = false;
+      drawer.setAttribute("aria-hidden", "false");
+      document.getElementById("bagClose").focus();
+    }
+
+    function closeBag() {
+      document.body.classList.remove("cart-open");
+      drawer.setAttribute("aria-hidden", "true");
+      drawer.inert = true;
+      if (lastFocus) lastFocus.focus();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    document.querySelectorAll("[data-size]").forEach(button => {
+      button.addEventListener("click", () => {
+        selected = button.dataset.size;
+        updateProduct();
+      });
+    });
+    document.getElementById("decrease").addEventListener("click", () => {
+      quantity = Math.max(1, quantity - 1);
+      document.getElementById("quantity").value = quantity;
+      updateProduct();
+    });
+    document.getElementById("increase").addEventListener("click", () => {
+      quantity = Math.min(99, quantity + 1);
+      document.getElementById("quantity").value = quantity;
+      updateProduct();
+    });
+    document.getElementById("addToBag").addEventListener("click", () => {
+      const product = products[selected];
+      const item = cart.get(product.id) || { ...product, quantity: 0 };
+      item.quantity += quantity;
+      cart.set(product.id, item);
+      render();
+      showToast(`${product.size} added to your bag`);
+    });
+    document.getElementById("cartItems").addEventListener("click", event => {
+      const quantityButton = event.target.closest("[data-qty]");
+      const removeButton = event.target.closest("[data-remove]");
+
+      if (quantityButton) {
+        const item = cart.get(quantityButton.dataset.qty);
+        item.quantity += Number(quantityButton.dataset.delta);
+        if (item.quantity <= 0) cart.delete(item.id);
+        render();
+      }
+      if (removeButton) {
+        cart.delete(removeButton.dataset.remove);
+        render();
+      }
+    });
+    document.getElementById("bagOpen").addEventListener("click", openBag);
+    document.getElementById("bagClose").addEventListener("click", closeBag);
+    document.getElementById("backdrop").addEventListener("click", closeBag);
+    document.addEventListener("keydown", event => {
+      if (!document.body.classList.contains("cart-open")) return;
+      if (event.key === "Escape") {
+        closeBag();
+        return;
+      }
+      if (event.key === "Tab") {
+        const focusable = [
+          ...drawer.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')
+        ];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+          event.preventDefault();
+          last?.focus();
+        } else if (
+          !event.shiftKey &&
+          (document.activeElement === last || !drawer.contains(document.activeElement))
+        ) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    });
+
+    const initialSize = new URLSearchParams(location.search).get("size");
+    if (products[initialSize]) selected = initialSize;
+    render();
+    updateProduct();
   </script>
 </body>
 </html>

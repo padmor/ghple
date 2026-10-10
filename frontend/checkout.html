@@ -37,14 +37,63 @@
   </main>
   <footer class="footer"><div class="wrap footer-inner"><span>© 2026 Gid’s Beverages &amp; Health Products Ltd.</span><a href="support.html">Delivery &amp; policies</a><a href="mailto:info@gbhpl.net">Contact support</a><span>Checkout prototype · No order is placed</span></div></footer>
   <script>
-    const catalog={"500ml":{name:"Gid’s Apple Cider Vinegar",size:"500 ml",price:105},"1000ml":{name:"Gid’s Apple Cider Vinegar",size:"1000 ml",price:170}},key="gbhpl-preview-cart-v1",items=[];
-    const money=n=>`GH₵${n.toLocaleString("en-GH")}`;
-    try{const saved=JSON.parse(sessionStorage.getItem(key)||"[]");if(Array.isArray(saved))saved.forEach(x=>{const p=catalog[x.id],q=Number(x.quantity);if(p&&Number.isInteger(q)&&q>0&&q<100)items.push({...p,id:x.id,quantity:q})})}catch{}
-    const subtotal=items.reduce((s,x)=>s+x.price*x.quantity,0);
-    if(!items.length){document.getElementById("emptyState").hidden=false;document.getElementById("checkoutLayout").hidden=true}
-    else{document.getElementById("orderItems").innerHTML=items.map(x=>`<div class="order-row"><span>${x.name}<small>${x.size} · Qty ${x.quantity}</small></span><strong>${money(x.price*x.quantity)}</strong></div>`).join("");document.getElementById("subtotal").textContent=money(subtotal);document.getElementById("total").textContent=money(subtotal)}
-    const form=document.getElementById("deliveryForm");form.addEventListener("submit",event=>{event.preventDefault();const status=document.getElementById("reviewStatus");if(!form.reportValidity())return;status.textContent="Your sample details passed the form checks. They stay in this page only and are not sent or saved. Review the total above; delivery and payment are preview-only.";status.classList.add("show")});
-    document.getElementById("previewPay").addEventListener("click",()=>{const status=document.getElementById("paymentDemoStatus");if(!form.reportValidity()){form.querySelector(":invalid")?.focus();return}status.textContent="Demo only: no Mobile Money prompt was sent and no order or payment was created. Paystack is not connected.";status.classList.add("show")});
+    const catalog = {
+      "500ml": { name: "Gid’s Apple Cider Vinegar", size: "500 ml", price: 105 },
+      "1000ml": { name: "Gid’s Apple Cider Vinegar", size: "1000 ml", price: 170 }
+    };
+    const key = "gbhpl-preview-cart-v1";
+    const items = [];
+    const money = amount => `GH₵${amount.toLocaleString("en-GH")}`;
+
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+      if (Array.isArray(saved)) {
+        saved.forEach(item => {
+          const product = catalog[item.id];
+          const quantity = Number(item.quantity);
+          if (product && Number.isInteger(quantity) && quantity > 0 && quantity < 100) {
+            items.push({ ...product, id: item.id, quantity });
+          }
+        });
+      }
+    } catch {}
+
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    if (!items.length) {
+      document.getElementById("emptyState").hidden = false;
+      document.getElementById("checkoutLayout").hidden = true;
+    } else {
+      document.getElementById("orderItems").innerHTML = items.map(item => `
+        <div class="order-row">
+          <span>${item.name}<small>${item.size} · Qty ${item.quantity}</small></span>
+          <strong>${money(item.price * item.quantity)}</strong>
+        </div>
+      `).join("");
+      document.getElementById("subtotal").textContent = money(subtotal);
+      document.getElementById("total").textContent = money(subtotal);
+    }
+
+    const form = document.getElementById("deliveryForm");
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const status = document.getElementById("reviewStatus");
+      status.textContent =
+        "Your sample details passed the form checks. They stay in this page only and are not sent or saved. Review the total above; delivery and payment are preview-only.";
+      status.classList.add("show");
+    });
+    document.getElementById("previewPay").addEventListener("click", () => {
+      const status = document.getElementById("paymentDemoStatus");
+      if (!form.reportValidity()) {
+        form.querySelector(":invalid")?.focus();
+        return;
+      }
+
+      status.textContent =
+        "Demo only: no Mobile Money prompt was sent and no order or payment was created. Paystack is not connected.";
+      status.classList.add("show");
+    });
   </script>
 </body>
 </html>

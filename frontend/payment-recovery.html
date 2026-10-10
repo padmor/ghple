@@ -30,8 +30,26 @@
       cancelled:{label:"Payment cancelled",title:"No payment was completed",lead:"The payment step was cancelled before completion. Your items can remain in your bag while you decide whether to try checkout again.",stepsTitle:"What you can do",steps:"You can return to your bag to review the items, or go back to checkout when you’re ready. If you did not cancel it, contact support for help.",button:"Go back to checkout",href:"checkout.html"},
       pending:{label:"Payment still pending",title:"Please check your phone",lead:"If you have just requested a MoMo payment, look for the approval prompt on your phone. Keep this page open while the provider confirms the result.",stepsTitle:"What to do",steps:"Approve the request only if the amount and merchant details are correct. Don’t start another payment while this one is pending.",button:"Return to pending status",href:"payment-status.html"}
     };
-    function setState(name){const state=states[name]?name:"pending",s=states[state];document.getElementById("stateCard").dataset.state=state;document.getElementById("stateLabel").textContent=s.label;document.getElementById("stateTitle").textContent=s.title;document.getElementById("stateLead").textContent=s.lead;document.getElementById("stepsTitle").textContent=s.stepsTitle;document.getElementById("stepsCopy").textContent=s.steps;document.getElementById("primaryAction").textContent=s.button;document.getElementById("primaryAction").href=s.href;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.state===state)))}
-    document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>setState(b.dataset.state)));setState(new URLSearchParams(location.search).get("state")||"pending");
+    function setState(name) {
+      const state = states[name] ? name : "pending";
+      const copy = states[state];
+      document.getElementById("stateCard").dataset.state = state;
+      document.getElementById("stateLabel").textContent = copy.label;
+      document.getElementById("stateTitle").textContent = copy.title;
+      document.getElementById("stateLead").textContent = copy.lead;
+      document.getElementById("stepsTitle").textContent = copy.stepsTitle;
+      document.getElementById("stepsCopy").textContent = copy.steps;
+      document.getElementById("primaryAction").textContent = copy.button;
+      document.getElementById("primaryAction").href = copy.href;
+      document.querySelectorAll(".tab").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.state === state));
+      });
+    }
+
+    document.querySelectorAll(".tab").forEach(button => {
+      button.addEventListener("click", () => setState(button.dataset.state));
+    });
+    setState(new URLSearchParams(location.search).get("state") || "pending");
   </script>
 </body>
 </html>

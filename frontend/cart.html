@@ -21,14 +21,102 @@
   <footer class="footer"><div class="wrap footer-inner"><span>© 2026 Gid’s Beverages &amp; Health Products Ltd.</span><a href="support.html">Delivery &amp; policies</a><a href="mailto:info@gbhpl.net">Contact support</a><span>Prototype · checkout not live</span></div></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script>
-    const products={"500ml":{id:"500ml",size:"500 ml",price:105},"1000ml":{id:"1000ml",size:"1000 ml",price:170}},key="gbhpl-preview-cart-v1",cart=new Map(),host=document.getElementById("items"),checkout=document.getElementById("checkout");let toastTimer;
-    try{const saved=JSON.parse(sessionStorage.getItem(key)||"[]");if(Array.isArray(saved))saved.forEach(x=>{const p=products[x.id],q=Number(x.quantity);if(p&&Number.isInteger(q)&&q>0&&q<100)cart.set(p.id,{...p,quantity:q})})}catch{}
-    const money=n=>`GH₵${n.toLocaleString("en-GH")}`;
-    function save(){try{sessionStorage.setItem(key,JSON.stringify([...cart.values()].map(({id,quantity})=>({id,quantity}))))}catch{}}
-    function render(){const entries=[...cart.values()],count=entries.reduce((s,x)=>s+x.quantity,0),subtotal=entries.reduce((s,x)=>s+x.price*x.quantity,0);document.getElementById("itemCount").textContent=`${count} ${count===1?"item":"items"}`;document.getElementById("subtotal").textContent=money(subtotal);document.getElementById("total").textContent=count?`${money(subtotal)} + delivery`:money(0);checkout.setAttribute("aria-disabled",String(!count));checkout.tabIndex=count?0:-1;
-      if(!count){host.innerHTML='<div class="empty"><h2>Your bag is empty</h2><p>Browse the shop and add a bottle to get started.</p><a class="button" href="index.html#shop">Browse products</a></div>';checkout.href="index.html#shop";checkout.textContent="Browse products";}
-      else{checkout.href="checkout.html";checkout.textContent="Continue to checkout";host.innerHTML=entries.map(x=>`<article class="cart-item"><div class="art" aria-hidden="true"><svg viewBox="0 0 80 130" fill="none"><path d="M29 10h22v15c0 3 2 5 5 7 7 6 10 12 10 23v59c0 7-5 11-11 11H25c-7 0-11-4-11-11V55c0-11 3-17 9-23 3-2 6-4 6-7V10Z" fill="#a95722" stroke="#583219" stroke-width="3"/><path d="M28 55h24v35H28z" fill="#fff8e8"/><path d="M28 63h24" stroke="#f2673a"/><text x="40" y="74" fill="#202226" font-size="5" font-weight="bold" text-anchor="middle">GID’S</text><text x="40" y="82" fill="#202226" font-size="4" text-anchor="middle">APPLE CIDER</text></svg></div><div class="item-copy"><h2 class="item-title">Gid’s Apple Cider Vinegar</h2><p class="variant">${x.size}</p><p class="unit">${money(x.price)} each · listed preview price</p><div class="controls"><button type="button" data-qty="${x.id}" data-delta="-1" aria-label="Decrease ${x.size} quantity">−</button><output>${x.quantity}</output><button type="button" data-qty="${x.id}" data-delta="1" aria-label="Increase ${x.size} quantity">+</button><button class="remove" type="button" data-remove="${x.id}">Remove</button></div></div><span class="line-total">${money(x.price*x.quantity)}</span></article>`).join("")};save();}
-    host.addEventListener("click",e=>{const q=e.target.closest("[data-qty]"),r=e.target.closest("[data-remove]");if(q){const x=cart.get(q.dataset.qty);x.quantity+=Number(q.dataset.delta);if(x.quantity<=0)cart.delete(x.id);if(x.quantity>99)x.quantity=99;render()}if(r){cart.delete(r.dataset.remove);render()}});render();
+    const products = {
+      "500ml": { id: "500ml", size: "500 ml", price: 105 },
+      "1000ml": { id: "1000ml", size: "1000 ml", price: 170 }
+    };
+    const key = "gbhpl-preview-cart-v1";
+    const cart = new Map();
+    const host = document.getElementById("items");
+    const checkout = document.getElementById("checkout");
+
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+      if (Array.isArray(saved)) {
+        saved.forEach(item => {
+          const product = products[item.id];
+          const quantity = Number(item.quantity);
+          if (product && Number.isInteger(quantity) && quantity > 0 && quantity < 100) {
+            cart.set(product.id, { ...product, quantity });
+          }
+        });
+      }
+    } catch {}
+
+    const money = amount => `GH₵${amount.toLocaleString("en-GH")}`;
+
+    function render() {
+      const entries = [...cart.values()];
+      const count = entries.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = entries.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      document.getElementById("itemCount").textContent =
+        `${count} ${count === 1 ? "item" : "items"}`;
+      document.getElementById("subtotal").textContent = money(subtotal);
+      document.getElementById("total").textContent = count
+        ? `${money(subtotal)} + delivery`
+        : money(0);
+      checkout.setAttribute("aria-disabled", String(!count));
+      checkout.tabIndex = count ? 0 : -1;
+
+      if (!count) {
+        host.innerHTML = '<div class="empty"><h2>Your bag is empty</h2><p>Browse the shop and add a bottle to get started.</p><a class="button" href="index.html#shop">Browse products</a></div>';
+        checkout.href = "index.html#shop";
+        checkout.textContent = "Browse products";
+      } else {
+        checkout.href = "checkout.html";
+        checkout.textContent = "Continue to checkout";
+        host.innerHTML = entries.map(item => `
+          <article class="cart-item">
+            <div class="art" aria-hidden="true">
+              <svg viewBox="0 0 80 130" fill="none">
+                <path d="M29 10h22v15c0 3 2 5 5 7 7 6 10 12 10 23v59c0 7-5 11-11 11H25c-7 0-11-4-11-11V55c0-11 3-17 9-23 3-2 6-4 6-7V10Z" fill="#a95722" stroke="#583219" stroke-width="3"/>
+                <path d="M28 55h24v35H28z" fill="#fff8e8"/>
+                <path d="M28 63h24" stroke="#f2673a"/>
+                <text x="40" y="74" fill="#202226" font-size="5" font-weight="bold" text-anchor="middle">GID’S</text>
+                <text x="40" y="82" fill="#202226" font-size="4" text-anchor="middle">APPLE CIDER</text>
+              </svg>
+            </div>
+            <div class="item-copy">
+              <h2 class="item-title">Gid’s Apple Cider Vinegar</h2>
+              <p class="variant">${item.size}</p>
+              <p class="unit">${money(item.price)} each · listed preview price</p>
+              <div class="controls">
+                <button type="button" data-qty="${item.id}" data-delta="-1" aria-label="Decrease ${item.size} quantity">−</button>
+                <output>${item.quantity}</output>
+                <button type="button" data-qty="${item.id}" data-delta="1" aria-label="Increase ${item.size} quantity">+</button>
+                <button class="remove" type="button" data-remove="${item.id}">Remove</button>
+              </div>
+            </div>
+            <span class="line-total">${money(item.price * item.quantity)}</span>
+          </article>
+        `).join("");
+      }
+
+      try {
+        sessionStorage.setItem(
+          key,
+          JSON.stringify(entries.map(({ id, quantity }) => ({ id, quantity })))
+        );
+      } catch {}
+    }
+
+    host.addEventListener("click", event => {
+      const quantityButton = event.target.closest("[data-qty]");
+      const removeButton = event.target.closest("[data-remove]");
+
+      if (quantityButton) {
+        const item = cart.get(quantityButton.dataset.qty);
+        item.quantity += Number(quantityButton.dataset.delta);
+        if (item.quantity <= 0) cart.delete(item.id);
+        if (item.quantity > 99) item.quantity = 99;
+        render();
+      }
+      if (removeButton) {
+        cart.delete(removeButton.dataset.remove);
+        render();
+      }
+    });
+    render();
   </script>
 </body>
 </html>
