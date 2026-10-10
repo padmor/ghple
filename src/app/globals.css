@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts loaded via next/font in layout.tsx ── */
+
+@layer base {
+  :root {
+    /* shadcn/ui tokens mapped to Deep Forest & Gold palette */
+    --background:  40 60% 99%;          /* warm ivory white */
+    --foreground:  130 30% 12%;         /* near-black with forest tint */
+
+    --card:        40 50% 98%;
+    --card-foreground: 130 30% 12%;
+
+    --popover:     0 0% 100%;
+    --popover-foreground: 130 30% 12%;
+
+    --primary:     44 80% 46%;          /* palm gold #D4A017 */
+    --primary-foreground: 130 30% 10%; /* dark forest on gold */
+
+    --secondary:   130 22% 24%;         /* forest green */
+    --secondary-foreground: 40 60% 97%;
+
+    --muted:       40 20% 94%;
+    --muted-foreground: 130 8% 44%;
+
+    --accent:      24 66% 47%;          /* terracotta */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border:      130 12% 88%;
+    --input:       130 12% 86%;
+    --ring:        44 80% 46%;          /* gold focus ring */
+
+    --radius: 0.75rem;
+  }
+
+  /* Manager panel dark theme */
+  .manager-theme {
+    --background:  210 38% 11%;         /* midnight navy */
+    --foreground:  40 30% 95%;
+    --card:        210 35% 15%;
+    --card-foreground: 40 30% 95%;
+    --primary:     44 80% 46%;          /* gold stays */
+    --primary-foreground: 130 30% 10%;
+    --secondary:   210 32% 20%;
+    --secondary-foreground: 40 30% 90%;
+    --muted:       210 30% 18%;
+    --muted-foreground: 210 10% 60%;
+    --border:      210 28% 22%;
+    --input:       210 28% 20%;
+    --ring:        44 80% 46%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-outfit), system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Headings use display weight */
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* ── Navbar glass effect ── */
+  .nav-glass {
+    background: rgba(255, 248, 240, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(26, 51, 32, 0.08);
+  }
+
+  .nav-glass-dark {
+    background: rgba(26, 51, 32, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* ── Gold CTA button ── */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-brand-gold text-brand-forest font-semibold
+           px-6 py-3 text-sm
+           shadow-gold-sm
+           transition-all duration-200
+           hover:bg-brand-gold-light hover:shadow-gold-md hover:-translate-y-0.5
+           active:translate-y-0 active:shadow-gold-sm
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold;
+  }
+
+  /* ── Forest outline button ── */
+  .btn-forest-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           border-2 border-brand-forest text-brand-forest font-semibold
+           px-6 py-3 text-sm
+           transition-all duration-200
+           hover:bg-brand-forest hover:text-white hover:-translate-y-0.5
+           active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-forest;
+  }
+
+  /* ── White outline button (for dark backgrounds) ── */
+  .btn-white-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           border-2 border-white text-white font-semibold
+           px-6 py-3 text-sm
+           transition-all duration-200
+           hover:bg-white hover:text-brand-forest hover:-translate-y-0.5
+           active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white;
+  }
+
+  /* ── Section wrapper ── */
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Card base ── */
+  .card-base {
+    @apply rounded-xl bg-white border border-border shadow-card
+           transition-shadow duration-200 hover:shadow-card-hover;
+  }
+
+  /* ── Gold badge pill ── */
+  .badge-gold {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           bg-brand-gold/15 text-brand-gold-deep
+           text-xs font-semibold tracking-wide uppercase
+           px-3 py-1 border border-brand-gold/30;
+  }
+
+  /* ── Terracotta badge ── */
+  .badge-terracotta {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           bg-brand-terracotta/15 text-brand-terracotta
+           text-xs font-semibold tracking-wide uppercase
+           px-3 py-1 border border-brand-terracotta/30;
+  }
+
+  /* ── Section label (small uppercase above heading) ── */
+  .section-label {
+    @apply text-xs font-bold tracking-widest uppercase text-brand-gold;
+  }
+
+  /* ── Divider line with gold centre dot ── */
+  .gold-divider {
+    @apply flex items-center gap-3 my-6;
+  }
+  .gold-divider::before,
+  .gold-divider::after {
+    content: "";
+    @apply flex-1 h-px bg-border;
+  }
+
+  /* ── Process step circle ── */
+  .step-circle {
+    @apply flex-shrink-0 w-10 h-10 rounded-full
+           bg-brand-forest text-white font-bold text-sm
+           flex items-center justify-center
+           ring-4 ring-brand-forest/20;
+  }
+
+  /* ── Form input ── */
+  .form-input {
+    @apply w-full rounded-lg border border-input bg-background
+           px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent;
+  }
+
+  /* ── Manager sidebar link ── */
+  .manager-nav-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg
+           text-sm font-medium text-slate-300
+           transition-colors duration-150
+           hover:bg-brand-navy-light hover:text-white;
+  }
+  .manager-nav-link.active {
+    @apply bg-brand-gold/20 text-brand-gold border-l-2 border-brand-gold;
+  }
+
+  /* ── Responsive image fill util ── */
+  .img-cover {
+    @apply absolute inset-0 w-full h-full object-cover object-center;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Smooth underline on hover */
+  .underline-hover {
+    @apply relative after:absolute after:bottom-0 after:left-0
+           after:h-0.5 after:w-0 after:bg-current
+           after:transition-all after:duration-200
+           hover:after:w-full;
+  }
+
+  /* Text shadow for hero overlay readability */
+  .text-shadow-sm {
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .text-shadow-md {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+  }
+
+  /* Gradient text */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold
+           bg-clip-text text-transparent;
+  }
+
+  /* Focus ring for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-gold focus-visible:ring-offset-2;
+  }
+
+  /* Animate on scroll (triggered by JS adding .visible class) */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Prevent layout shift for fixed navbar ── */
+.navbar-spacer {
+  height: 68px; /* matches navbar height */
+}
+
+/* ── Drawer overlay ── */
+.drawer-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* ── Cart quantity badge ── */
+.cart-badge {
+  @apply absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full
+         bg-brand-terracotta text-white text-[10px] font-bold
+         flex items-center justify-center;
+}
+
+/* ── Manager PIN input ── */
+.pin-input {
+  @apply w-14 h-14 text-center text-2xl font-bold rounded-xl
+         border-2 border-brand-navy-light bg-brand-navy-mid
+         text-white focus:border-brand-gold focus:outline-none
+         transition-colors duration-150;
+}
