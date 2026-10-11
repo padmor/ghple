@@ -1,0 +1,148 @@
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execAsync = promisify(exec);
+
+const POLL_INTERVAL_MS = 6000; // Check every 6 seconds
+const DEBOUNCE_PUSH_MS = 4000; // Wait 4 seconds after changes before auto-committing/pushing
+const REMOTE = 'origin';
+const BRANCH = 'main';
+
+let isSyncing = false;
+let pendingPushTimeout = null;
+let lastKnownRemoteCommit = null;
+
+function log(msg) {
+  const time = new Date().toLocaleTimeString();
+  console.log(`[${time}] [Git-LiveSync] ${msg}`);
+}
+
+async function run(cmd) {
+  try {
+    const { stdout, stderr } = await execAsync(cmd);
+    return { ok: true, stdout: stdout.trim(), stderr: stderr.trim() };
+  } catch (error) {
+    return { ok: false, stdout: error.stdout?.trim() ?? '', stderr: error.stderr?.trim() ?? error.message };
+  }
+}
+
+async function getLocalChanges() {
+  const res = await run('git status --porcelain');
+  if (!res.ok) return [];
+  if (!res.stdout) return [];
+  return res.stdout.split('\n').filter(Boolean);
+}
+
+async function getCommits() {
+  const local = await run('git rev-parse HEAD');
+  const remote = await run(`git rev-parse ${REMOTE}/${BRANCH}`);
+  return {
+    localHead: local.ok ? local.stdout : null,
+    remoteHead: remote.ok ? remote.stdout : null,
+  };
+}
+
+async function syncPull() {
+  const fetchRes = await run(`git fetch ${REMOTE} ${BRANCH}`);
+  if (!fetchRes.ok) {
+    // network or credentials glitch - log once and keep going
+    return;
+  }
+
+  const { localHead, remoteHead } = await getCommits();
+  if (!localHead || !remoteHead) return;
+
+  if (localHead !== remoteHead) {
+    const changes = await getLocalChanges();
+    const hasLocalChanges = changes.length > 0;
+
+    // Check if remote is ahead of local
+    const revList = await run(`git rev-list ${localHead}..${remoteHead}`);
+    if (revList.ok && revList.stdout.length > 0) {
+      log(`Incoming changes detected from GitHub (${remoteHead.slice(0, 7)}). Pulling...`);
+      
+      let pullCmd = `git pull --rebase --autostash ${REMOTE} ${BRANCH}`;
+      const pullRes = await run(pullCmd);
+      if (pullRes.ok) {
+        log(`✓ Successfully updated local files to GitHub commit ${remoteHead.slice(0, 7)}.`);
+        lastKnownRemoteCommit = remoteHead;
+      } else {
+        log(`⚠ Warning while pulling: ${pullRes.stderr}`);
+      }
+    }
+  } else {
+    lastKnownRemoteCommit = remoteHead;
+  }
+}
+
+async function syncPush() {
+  const changes = await getLocalChanges();
+  if (changes.length === 0) return;
+
+  log(`Detected ${changes.length} local change(s). Preparing commit & push...`);
+  
+  // Stage all changes
+  const addRes = await run('git add -A');
+  if (!addRes.ok) {
+    log(`Failed to stage changes: ${addRes.stderr}`);
+    return;
+  }
+
+  // Commit
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  const commitMsg = `sync: automatic real-time update [${now}]`;
+  const commitRes = await run(`git commit -m "${commitMsg}"`);
+  if (!commitRes.ok) {
+    // Might be empty or nothing to commit
+    return;
+  }
+
+  // Pull first with rebase in case remote updated
+  await run(`git pull --rebase --autostash ${REMOTE} ${BRANCH}`);
+
+  // Push
+  const pushRes = await run(`git push ${REMOTE} ${BRANCH}`);
+  if (pushRes.ok) {
+    const { localHead } = await getCommits();
+    log(`✓ Pushed local updates to GitHub (${localHead ? localHead.slice(0, 7) : 'latest'}).`);
+  } else {
+    log(`⚠ Push failed: ${pushRes.stderr}`);
+  }
+}
+
+async function cycle() {
+  if (isSyncing) return;
+  isSyncing = true;
+
+  try {
+    // 1. Pull any incoming changes from GitHub
+    await syncPull();
+
+    // 2. Check if local changes need debounced push
+    const changes = await getLocalChanges();
+    if (changes.length > 0) {
+      if (!pendingPushTimeout) {
+        pendingPushTimeout = setTimeout(async () => {
+          pendingPushTimeout = null;
+          await syncPush();
+        }, DEBOUNCE_PUSH_MS);
+      }
+    }
+  } catch (err) {
+    log(`Sync error: ${err.message}`);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+console.log('='.repeat(65));
+console.log('  GBHPL Real-Time GitHub Synchronization Engine');
+console.log(`  Tracking: ${REMOTE}/${BRANCH}`);
+console.log(`  Pull Interval: ${POLL_INTERVAL_MS / 1000}s | Push Debounce: ${DEBOUNCE_PUSH_MS / 1000}s`);
+console.log('='.repeat(65));
+
+// Run initial cycle immediately
+cycle();
+
+// Set interval
+setInterval(cycle, POLL_INTERVAL_MS);
