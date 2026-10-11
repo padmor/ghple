@@ -4,13 +4,12 @@ import { promisify } from 'node:util';
 const execAsync = promisify(exec);
 
 const POLL_INTERVAL_MS = 6000; // Check every 6 seconds
-const DEBOUNCE_PUSH_MS = 4000; // Wait 4 seconds after changes before auto-committing/pushing
+const DEBOUNCE_PUSH_MS = 3000; // Wait 3 seconds after changes before auto-committing/pushing
 const REMOTE = 'origin';
 const BRANCH = 'main';
 
 let isSyncing = false;
 let pendingPushTimeout = null;
-let lastKnownRemoteCommit = null;
 
 function log(msg) {
   const time = new Date().toLocaleTimeString();
@@ -28,8 +27,7 @@ async function run(cmd) {
 
 async function getLocalChanges() {
   const res = await run('git status --porcelain');
-  if (!res.ok) return [];
-  if (!res.stdout) return [];
+  if (!res.ok || !res.stdout) return [];
   return res.stdout.split('\n').filter(Boolean);
 }
 
@@ -44,69 +42,55 @@ async function getCommits() {
 
 async function syncPull() {
   const fetchRes = await run(`git fetch ${REMOTE} ${BRANCH}`);
-  if (!fetchRes.ok) {
-    // network or credentials glitch - log once and keep going
-    return;
-  }
+  if (!fetchRes.ok) return;
 
   const { localHead, remoteHead } = await getCommits();
   if (!localHead || !remoteHead) return;
 
   if (localHead !== remoteHead) {
-    const changes = await getLocalChanges();
-    const hasLocalChanges = changes.length > 0;
-
-    // Check if remote is ahead of local
-    const revList = await run(`git rev-list ${localHead}..${remoteHead}`);
-    if (revList.ok && revList.stdout.length > 0) {
-      log(`Incoming changes detected from GitHub (${remoteHead.slice(0, 7)}). Pulling...`);
-      
-      let pullCmd = `git pull --rebase --autostash ${REMOTE} ${BRANCH}`;
-      const pullRes = await run(pullCmd);
+    // Check if remote has commits ahead of local
+    const behindRes = await run(`git rev-list ${localHead}..${remoteHead}`);
+    if (behindRes.ok && behindRes.stdout.length > 0) {
+      log(`Incoming updates detected from GitHub (${remoteHead.slice(0, 7)}). Pulling...`);
+      const pullRes = await run(`git pull --rebase --autostash ${REMOTE} ${BRANCH}`);
       if (pullRes.ok) {
-        log(`✓ Successfully updated local files to GitHub commit ${remoteHead.slice(0, 7)}.`);
-        lastKnownRemoteCommit = remoteHead;
+        log(`✓ Pulled and updated local files to GitHub commit ${remoteHead.slice(0, 7)}.`);
       } else {
-        log(`⚠ Warning while pulling: ${pullRes.stderr}`);
+        log(`⚠ Pull warning: ${pullRes.stderr}`);
       }
     }
-  } else {
-    lastKnownRemoteCommit = remoteHead;
   }
 }
 
 async function syncPush() {
   const changes = await getLocalChanges();
-  if (changes.length === 0) return;
+  if (changes.length > 0) {
+    log(`Detected ${changes.length} local file modification(s). Staging & committing...`);
+    const addRes = await run('git add -A');
+    if (!addRes.ok) {
+      log(`Failed to stage changes: ${addRes.stderr}`);
+      return;
+    }
 
-  log(`Detected ${changes.length} local change(s). Preparing commit & push...`);
-  
-  // Stage all changes
-  const addRes = await run('git add -A');
-  if (!addRes.ok) {
-    log(`Failed to stage changes: ${addRes.stderr}`);
-    return;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const commitMsg = `sync: automatic real-time update [${now}]`;
+    const commitRes = await run(`git commit -m "${commitMsg}"`);
+    if (!commitRes.ok) return;
   }
 
-  // Commit
-  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  const commitMsg = `sync: automatic real-time update [${now}]`;
-  const commitRes = await run(`git commit -m "${commitMsg}"`);
-  if (!commitRes.ok) {
-    // Might be empty or nothing to commit
-    return;
-  }
-
-  // Pull first with rebase in case remote updated
-  await run(`git pull --rebase --autostash ${REMOTE} ${BRANCH}`);
-
-  // Push
-  const pushRes = await run(`git push ${REMOTE} ${BRANCH}`);
-  if (pushRes.ok) {
-    const { localHead } = await getCommits();
-    log(`✓ Pushed local updates to GitHub (${localHead ? localHead.slice(0, 7) : 'latest'}).`);
-  } else {
-    log(`⚠ Push failed: ${pushRes.stderr}`);
+  // Check if we are ahead of remote
+  const aheadRes = await run(`git rev-list ${REMOTE}/${BRANCH}..HEAD`);
+  if (aheadRes.ok && aheadRes.stdout.length > 0) {
+    log('Local commits ahead of GitHub. Pushing to origin/main...');
+    // Always rebase incoming before pushing
+    await run(`git pull --rebase --autostash ${REMOTE} ${BRANCH}`);
+    const pushRes = await run(`git push ${REMOTE} ${BRANCH}`);
+    if (pushRes.ok) {
+      const { localHead } = await getCommits();
+      log(`✓ Pushed to GitHub (${localHead ? localHead.slice(0, 7) : 'latest'}).`);
+    } else {
+      log(`⚠ Push warning: ${pushRes.stderr}`);
+    }
   }
 }
 
@@ -115,12 +99,15 @@ async function cycle() {
   isSyncing = true;
 
   try {
-    // 1. Pull any incoming changes from GitHub
+    // 1. Fetch & pull incoming commits from GitHub
     await syncPull();
 
-    // 2. Check if local changes need debounced push
+    // 2. Stage/commit/push if local changes exist or ahead of remote
     const changes = await getLocalChanges();
-    if (changes.length > 0) {
+    const aheadRes = await run(`git rev-list ${REMOTE}/${BRANCH}..HEAD`);
+    const isAhead = aheadRes.ok && aheadRes.stdout.length > 0;
+
+    if (changes.length > 0 || isAhead) {
       if (!pendingPushTimeout) {
         pendingPushTimeout = setTimeout(async () => {
           pendingPushTimeout = null;
@@ -144,5 +131,5 @@ console.log('='.repeat(65));
 // Run initial cycle immediately
 cycle();
 
-// Set interval
+// Set recurring interval
 setInterval(cycle, POLL_INTERVAL_MS);
