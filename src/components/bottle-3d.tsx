@@ -460,11 +460,11 @@ export function Bottle3D({
       sp: number,
       mode: "stroke" | "fill"
     ) {
-      const ws = [...txt].map((ch) => c.measureText(ch).width);
+      const ws = txt.split("").map((ch) => c.measureText(ch).width);
       const total = ws.reduce((a, b) => a + b, 0) + sp * (txt.length - 1);
       let x = cx - total / 2;
       c.textAlign = "left";
-      [...txt].forEach((ch, i) => {
+      txt.split("").forEach((ch, i) => {
         if (mode === "stroke") c.strokeText(ch, x, y);
         else c.fillText(ch, x, y);
         x += ws[i] + sp;

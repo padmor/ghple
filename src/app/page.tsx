@@ -606,16 +606,30 @@ export default function HomePage() {
         {/* ═══════════════════════════════════════
             PRODUCTS — dynamic catalog grid
         ═══════════════════════════════════════ */}
-        <section className="bg-brand-forest py-20" id="products">
-          <div className="section-container">
+        <section className="relative bg-brand-forest py-24 sm:py-28 overflow-hidden" id="products">
+          {/* Background image & atmospheric overlays */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/products-bg.jpg"
+              alt="Gid's Apple Cider Vinegar handcrafted background"
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+            {/* Dark gradient overlay for rich contrast, readability, and depth */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-brand-forest/90 to-black/85" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-forest via-brand-forest/40 to-brand-forest/95" />
+          </div>
+
+          <div className="relative z-10 section-container">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
               <div>
-                <p className="section-label text-brand-gold mb-3">Our Products</p>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white">
+                <p className="section-label text-brand-gold mb-3 text-shadow-sm">Our Products</p>
+                <h2 className="text-3xl sm:text-5xl font-bold text-white text-shadow-md">
                   Choose your size
                 </h2>
               </div>
-              <p className="text-white/60 text-sm max-w-sm sm:text-right">
+              <p className="text-white/80 text-sm max-w-sm sm:text-right text-shadow-sm">
                 {products.length === 1
                   ? "Raw, unfiltered apple cider vinegar with the living mother culture intact."
                   : `Same premium vinegar, available in ${products.length} handcrafted sizes. All raw, all unfiltered.`}
@@ -639,8 +653,8 @@ export default function HomePage() {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className={`bg-brand-forest-mid rounded-2xl p-6 sm:p-7 border border-white/10
-                      flex flex-col justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-brand-gold/30 ${
+                    className={`bg-brand-forest-mid/90 backdrop-blur-xl rounded-2xl p-6 sm:p-7 border border-white/15 shadow-2xl
+                      flex flex-col justify-between gap-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-gold/50 hover:shadow-brand-gold/10 ${
                         !product.inStock ? "opacity-75" : ""
                       }`}
                   >
