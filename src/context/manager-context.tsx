@@ -93,7 +93,36 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
           setBenefits(parsed.benefits);
         }
         if (Array.isArray(parsed.processSteps) && parsed.processSteps.length > 0) {
-          setProcessSteps(parsed.processSteps);
+          // Replace the untouched previous defaults with the four stages used on GBHPL's live site.
+          const oldDefaultTitles = [
+            "Apple Selection",
+            "Crushing & Pressing",
+            "Fermentation",
+            "Acetification",
+            "Quality Check",
+            "Bottling",
+          ];
+          const oldDefaultDescriptions = [
+            "Fresh, ripe apples are carefully selected and washed.",
+            "Apples are cold-pressed to extract maximum juice and nutrients.",
+            "Juice ferments naturally with wild yeast over several weeks.",
+            "A second fermentation converts alcohol to acetic acid — forming the mother.",
+            "Each batch is tested for acidity, colour and purity standards.",
+            "Sealed in food-grade bottles and labelled by hand in Cape Coast.",
+          ];
+          const isUntouchedOldDefault =
+            parsed.processSteps.length === oldDefaultTitles.length &&
+            parsed.processSteps.every(
+              (step: ProcessStep, index: number) =>
+                step.id === `s${index + 1}` &&
+                step.number === index + 1 &&
+                step.title === oldDefaultTitles[index] &&
+                step.description === oldDefaultDescriptions[index]
+            );
+
+          setProcessSteps(
+            isUntouchedOldDefault ? DEFAULT_PROCESS_STEPS : parsed.processSteps
+          );
         }
         if (Array.isArray(parsed.tradeTiers) && parsed.tradeTiers.length > 0) {
           setTradeTiers(parsed.tradeTiers);

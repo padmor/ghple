@@ -460,11 +460,11 @@ export function Bottle3D({
       sp: number,
       mode: "stroke" | "fill"
     ) {
-      const ws = txt.split("").map((ch) => c.measureText(ch).width);
+      const ws = [...txt].map((ch) => c.measureText(ch).width);
       const total = ws.reduce((a, b) => a + b, 0) + sp * (txt.length - 1);
       let x = cx - total / 2;
       c.textAlign = "left";
-      txt.split("").forEach((ch, i) => {
+      [...txt].forEach((ch, i) => {
         if (mode === "stroke") c.strokeText(ch, x, y);
         else c.fillText(ch, x, y);
         x += ws[i] + sp;
@@ -931,10 +931,10 @@ export function Bottle3D({
 
     function resize() {
       const w = box.clientWidth || 340;
-      const h = box.clientHeight || 280;
+      const h = box.clientHeight || 420;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
-      camera.fov = w / h < 0.8 ? 38 : 30;
+      camera.fov = w / h < 0.8 ? 42 : 32;
       camera.updateProjectionMatrix();
     }
 
@@ -1051,7 +1051,7 @@ export function Bottle3D({
       <div
         ref={containerRef}
         id="bottle-3d"
-        className="w-full h-full min-h-[220px] sm:min-h-[260px] relative cursor-grab active:cursor-grabbing touch-pan-y"
+        className="w-full h-full min-h-[360px] sm:min-h-[420px] relative cursor-grab active:cursor-grabbing touch-pan-y"
       />
       {/* Subtle Hint Badge */}
       <div className="absolute inset-x-0 bottom-2 text-center pointer-events-none transition-opacity duration-300">

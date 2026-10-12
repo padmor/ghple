@@ -23,10 +23,21 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  // Keep the page still while the menu is open, and allow Escape to close it.
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (!menuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
@@ -92,7 +103,7 @@ export function Navbar() {
               <button
                 onClick={() => setIsCartOpen(true)}
                 aria-label={`Open cart — ${totalCount} item${totalCount !== 1 ? "s" : ""}`}
-                className={`relative p-2 rounded-lg transition-colors focus-ring ${
+                className={`relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors focus-ring ${
                   scrolled
                     ? "text-brand-forest hover:bg-brand-forest/8"
                     : "text-white hover:bg-white/10"
@@ -117,7 +128,7 @@ export function Navbar() {
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
-                className={`md:hidden p-2 rounded-lg transition-colors focus-ring ${
+                className={`md:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors focus-ring ${
                   scrolled
                     ? "text-brand-forest hover:bg-brand-forest/8"
                     : "text-white hover:bg-white/10"
@@ -141,31 +152,33 @@ export function Navbar() {
 
       {/* Mobile menu drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 z-50 bg-brand-forest md:hidden
+        className={`fixed top-0 right-0 h-full w-64 sm:w-72 z-50 bg-brand-forest md:hidden
           flex flex-col transition-transform duration-300 ease-out
           ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
         aria-hidden={!menuOpen}
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between px-6 h-16 border-b border-white/10">
+        <div className="flex items-center justify-between px-5 h-14 sm:px-6 sm:h-16 border-b border-white/10">
           <span className="text-white font-bold tracking-tight">Menu</span>
           <button
             onClick={closeMenu}
             aria-label="Close menu"
-            className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors focus-ring"
+            tabIndex={menuOpen ? 0 : -1}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors focus-ring"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Drawer links */}
-        <nav className="flex flex-col flex-1 px-4 py-6 gap-1" aria-label="Mobile navigation">
+        <nav className="flex flex-col flex-1 px-3 py-4 sm:px-4 sm:py-6 gap-1" aria-label="Mobile navigation">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={closeMenu}
-              className="flex items-center justify-between px-4 py-3.5 rounded-lg
+              tabIndex={menuOpen ? 0 : -1}
+              className="flex min-h-11 items-center justify-between px-3.5 py-3 sm:px-4 sm:py-3.5 rounded-lg
                 text-white/80 hover:text-white hover:bg-white/10
                 text-sm font-medium transition-colors focus-ring"
             >
@@ -176,11 +189,12 @@ export function Navbar() {
         </nav>
 
         {/* Drawer footer CTA */}
-        <div className="px-4 pb-8">
+        <div className="px-3 pb-5 sm:px-4 sm:pb-8">
           <Link
             href="#products"
             onClick={closeMenu}
-            className="btn-gold w-full justify-center text-sm"
+            tabIndex={menuOpen ? 0 : -1}
+            className="btn-gold min-h-11 w-full justify-center text-sm"
           >
             Shop Now
           </Link>

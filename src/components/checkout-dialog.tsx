@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, CheckCircle, Package } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { formatGHS } from "@/lib/utils";
@@ -56,6 +56,26 @@ export function CheckoutDialog() {
     notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!isCheckoutOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsCheckoutOpen(false);
+        setStep("form");
+        setErrors({});
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isCheckoutOpen, setIsCheckoutOpen]);
 
   const total = subtotal + DELIVERY_FEE;
 
@@ -146,13 +166,13 @@ export function CheckoutDialog() {
         role="dialog"
         aria-modal="true"
         aria-label="Checkout"
-        className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50
+        className="fixed inset-x-3 sm:inset-x-4 top-1/2 -translate-y-1/2 z-50
           max-w-lg mx-auto bg-white rounded-2xl shadow-2xl
           flex flex-col max-h-[90vh] overflow-hidden
           animate-scale-in"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
           <div>
             <h2 className="font-bold text-brand-forest">
               {step === "form" && "Your Details"}
@@ -175,7 +195,7 @@ export function CheckoutDialog() {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
           {/* ── Step 1: Form ── */}
           {step === "form" && (
             <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (validate()) setStep("review"); }}>
