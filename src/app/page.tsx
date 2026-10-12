@@ -4,12 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Leaf,
-  FlaskConical,
   ShieldCheck,
-  Flame,
   MapPin,
-  Timer,
   ShoppingCart,
   ArrowRight,
   Phone,
@@ -34,6 +30,7 @@ import { TrackOrderDialog } from "@/components/track-order-dialog";
 import { Navbar } from "@/components/navbar";
 import dynamic from "next/dynamic";
 import { BottleIllustration } from "@/components/bottle-illustration";
+import { LottieIcon } from "@/components/lottie-icon";
 import { formatGHS } from "@/lib/utils";
 
 const Bottle3D = dynamic(
@@ -50,15 +47,6 @@ const Bottle3D = dynamic(
     ),
   }
 );
-
-const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
-  Leaf,
-  FlaskConical,
-  ShieldCheck,
-  Flame,
-  MapPin,
-  Timer,
-};
 
 const FAQS = [
   {
@@ -580,23 +568,31 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {benefits.map((b, i) => {
-                const Icon = ICON_MAP[b.icon] ?? Leaf;
                 const isWide = i === 0 || i === 5;
+                const animationSrc = [
+                  "/lottie/orbit.json",
+                  "/lottie/pulse.json",
+                  "/lottie/sparkle.json",
+                ][i % 3];
+
                 return (
-                  <div
+                  <article
                     key={b.id}
-                    className={`bg-white rounded-2xl p-6 border border-border shadow-card
+                    className={`bg-white rounded-2xl p-5 sm:p-6 border border-border shadow-card
                       transition-shadow duration-200 hover:shadow-card-hover
                       ${isWide ? "sm:col-span-2 lg:col-span-1" : ""}`}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-brand-forest/8 flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5 text-brand-forest" />
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-brand-forest/5 flex items-center justify-center mb-4">
+                      <LottieIcon
+                        src={animationSrc}
+                        className="w-11 h-11 sm:w-12 sm:h-12"
+                      />
                     </div>
                     <h3 className="font-bold text-brand-forest mb-2">{b.title}</h3>
                     <p className="text-sm text-brand-forest/60 leading-relaxed">
                       {b.description}
                     </p>
-                  </div>
+                  </article>
                 );
               })}
             </div>
@@ -765,25 +761,19 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Steps — horizontal scroll on mobile, grid on desktop */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {processSteps.map((step, i) => (
-                <div key={step.id} className="flex gap-5">
-                  <div className="flex flex-col items-center">
-                    <div className="step-circle flex-shrink-0">
-                      {step.number}
-                    </div>
-                    {i < processSteps.length - 1 && (
-                      <div className="w-px flex-1 bg-border mt-3 hidden lg:block" />
-                    )}
-                  </div>
-                  <div className="pb-8 lg:pb-0">
-                    <h3 className="font-bold text-brand-forest mb-1.5">{step.title}</h3>
-                    <p className="text-sm text-brand-forest/60 leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
+            {/* Process cards stay simple on phones: no numbered badges or crowded timelines. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {processSteps.map((step) => (
+                <article
+                  key={step.id}
+                  className="h-full rounded-2xl border border-border bg-brand-ivory/60 p-5 sm:p-6 transition-shadow duration-200 hover:shadow-card"
+                >
+                  <div className="mb-5 h-1 w-10 rounded-full bg-brand-gold" aria-hidden="true" />
+                  <h3 className="font-bold text-brand-forest mb-2">{step.title}</h3>
+                  <p className="text-sm text-brand-forest/60 leading-relaxed">
+                    {step.description}
+                  </p>
+                </article>
               ))}
             </div>
           </div>
