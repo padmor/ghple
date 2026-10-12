@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/context/cart-context";
 import { ManagerProvider } from "@/context/manager-context";
@@ -48,6 +49,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased flex flex-col">
+        <Script
+          src="https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-wc@0.10.0/dist/dotlottie-wc.js"
+          type="module"
+          strategy="afterInteractive"
+        />
         <ManagerProvider>
           <CartProvider>{children}</CartProvider>
         </ManagerProvider>

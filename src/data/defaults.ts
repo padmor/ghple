@@ -132,39 +132,31 @@ export const DEFAULT_PROCESS_STEPS: ProcessStep[] = [
   {
     id: "s1",
     number: 1,
-    title: "Apple Selection",
-    description: "Fresh, ripe apples are carefully selected and washed.",
+    title: "Source Harvesting",
+    description:
+      "The production process starts with sourcing the fruit selected for Gid's cider.",
   },
   {
     id: "s2",
     number: 2,
-    title: "Crushing & Pressing",
-    description: "Apples are cold-pressed to extract maximum juice and nutrients.",
+    title: "Cold Press Extraction",
+    description:
+      "The apples are pressed to extract their juice before fermentation begins.",
   },
   {
     id: "s3",
     number: 3,
-    title: "Fermentation",
-    description: "Juice ferments naturally with wild yeast over several weeks.",
+    title: "Oak Barrel Fermentation",
+    description:
+      "The juice goes through two fermentation stages, developing the cider's acidity and natural mother culture.",
   },
   {
     id: "s4",
     number: 4,
-    title: "Acetification",
-    description: "A second fermentation converts alcohol to acetic acid — forming the mother.",
-  },
-  {
-    id: "s5",
-    number: 5,
-    title: "Quality Check",
-    description: "Each batch is tested for acidity, colour and purity standards.",
-  },
-  {
-    id: "s6",
-    number: 6,
-    title: "Bottling",
-    description: "Sealed in food-grade bottles and labelled by hand in Cape Coast.",
-  },
+    title: "Mature Cider Bottling",
+    description:
+      "After maturation and quality checks, the cider is bottled unfiltered and prepared for customers.",
+  }
 ];
 
 // ── CEO / Founder ─────────────────────────────
@@ -174,7 +166,7 @@ export const DEFAULT_CEO: CEOInfo = {
   bio: "Gideon founded Gid's Beverages & Health Products Ltd with one goal: to produce the highest-quality, naturally-made health beverages in Ghana. Starting in a small facility in Cape Coast, he has grown the brand through an unwavering commitment to quality and transparency.",
   quote:
     "We don't cut corners. Every bottle carries our name, and that means something to us.",
-  photoPath: "", // Manager uploads via panel
+  photoPath: "https://slmnzdpvbjesuwwqvcfi.supabase.co/storage/v1/object/public/site_content/Screenshot%202025-12-04%20012847.png",
 };
 
 // ── Trade Tiers ───────────────────────────────
