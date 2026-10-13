@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import {
   Product,
   Benefit,
@@ -55,6 +55,19 @@ function uid() {
   return `prod-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 }
 
+// Preview only: open the site with ?demo=8 to see the layout with extra sample products.
+// Nothing is saved — remove the parameter and the sample products disappear.
+const DEMO_SAMPLES: Omit<Product, "id">[] = [
+  { name: "Gid's Apple Cider Vinegar", size: "250 ml", volumeMl: 250, price: 60, badge: "Starter", image: "/products/bottle-500ml.jpg", inStock: true, description: "A small bottle to try the raw, unfiltered vinegar with the mother. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "750 ml", volumeMl: 750, price: 135, image: "/products/bottle-500ml.jpg", inStock: true, description: "A mid-size bottle for weekly use in cooking and daily wellness routines. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "2 L", volumeMl: 2000, price: 310, badge: "Bulk", image: "/products/bottle-1000ml.jpg", inStock: true, description: "Large container for busy kitchens and regular users. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "Twin Pack", volumeMl: 1000, price: 195, badge: "Save more", image: "/products/bottle-500ml.jpg", inStock: true, description: "Two 500 ml bottles together at a better price. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "Gift Set", volumeMl: 1000, price: 240, badge: "Gift", image: "/products/bottle-1000ml.jpg", inStock: true, description: "Presented as a gift, ready to give to someone special. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "Trial Pack", volumeMl: 300, price: 75, image: "/products/bottle-500ml.jpg", inStock: false, description: "Three small bottles to compare. Currently unavailable. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "5 L", volumeMl: 5000, price: 690, badge: "Trade", image: "/products/bottle-1000ml.jpg", inStock: true, description: "Catering size for restaurants and shops. Sample product for layout preview." },
+  { name: "Gid's Apple Cider Vinegar", size: "Family Box", volumeMl: 3000, price: 420, image: "/products/bottle-1000ml.jpg", inStock: true, description: "Three 1000 ml bottles in one box for the whole household. Sample product for layout preview." },
+];
+
 export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
   const [benefits, setBenefits] = useState<Benefit[]>(DEFAULT_BENEFITS);
@@ -63,6 +76,20 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [ceo, setCeo] = useState<CEOInfo>(DEFAULT_CEO);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [mounted, setMounted] = useState(false);
+  const [demoCount, setDemoCount] = useState(0);
+
+  useEffect(() => {
+    const n = Number(new URLSearchParams(window.location.search).get("demo"));
+    if (Number.isFinite(n) && n > 0) setDemoCount(Math.min(n, DEMO_SAMPLES.length));
+  }, []);
+
+  const displayProducts = useMemo(
+    () =>
+      demoCount > 0
+        ? [...products, ...DEMO_SAMPLES.slice(0, demoCount).map((d, i) => ({ ...d, id: `demo-${i}` }))]
+        : products,
+    [products, demoCount]
+  );
 
   // Load persisted admin edits from localStorage
   useEffect(() => {
@@ -190,7 +217,7 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
   return (
     <ManagerContext.Provider
       value={{
-        products,
+        products: displayProducts,
         benefits,
         processSteps,
         tradeTiers,

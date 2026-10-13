@@ -79,6 +79,54 @@ export const DEFAULT_PRODUCTS: Product[] = [
     description:
       "Family size. Ideal for daily cooking and wellness routines. Same premium quality, more for your money.",
   },
+  // NOTE: the four products below are placeholders — edit sizes, prices and descriptions in the manager portal.
+  {
+    id: "250ml",
+    name: "Gid's Apple Cider Vinegar",
+    size: "250 ml",
+    volumeMl: 250,
+    price: 60,
+    badge: "Starter",
+    image: "/products/bottle-500ml.jpg",
+    inStock: true,
+    description:
+      "A small bottle to try our raw, unfiltered apple cider vinegar with the mother culture.",
+  },
+  {
+    id: "750ml",
+    name: "Gid's Apple Cider Vinegar",
+    size: "750 ml",
+    volumeMl: 750,
+    price: 135,
+    image: "/products/bottle-500ml.jpg",
+    inStock: true,
+    description:
+      "A mid-size bottle for weekly use in cooking, dressings and your daily wellness routine.",
+  },
+  {
+    id: "2000ml",
+    name: "Gid's Apple Cider Vinegar",
+    size: "2 L",
+    volumeMl: 2000,
+    price: 310,
+    badge: "Bulk",
+    image: "/products/bottle-1000ml.jpg",
+    inStock: true,
+    description:
+      "A large container for busy kitchens and regular users. The same raw, unfiltered quality.",
+  },
+  {
+    id: "gift-set",
+    name: "Gid's Apple Cider Vinegar",
+    size: "Gift Set",
+    volumeMl: 1000,
+    price: 240,
+    badge: "Gift",
+    image: "/products/bottle-1000ml.jpg",
+    inStock: true,
+    description:
+      "Two bottles presented together, ready to give to someone who cares about natural health.",
+  },
 ];
 
 // ── Benefits ──────────────────────────────────

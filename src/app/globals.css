@@ -271,3 +271,9 @@
          text-white focus:border-brand-gold focus:outline-none
          transition-colors duration-150;
 }
+
+/* Phones: hide scrollbars everywhere (scrolling still works) */
+@media (max-width: 767px) {
+  * { scrollbar-width: none; -ms-overflow-style: none; }
+  *::-webkit-scrollbar { display: none; }
+}
