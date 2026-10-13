@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { LottieIcon } from "@/components/lottie-icon";
@@ -56,35 +57,28 @@ export function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto w-full max-w-[1400px] px-6">
-        <div className="flex h-[72px] items-center justify-between gap-4">
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6">
+        <div className="flex h-[72px] items-center justify-between gap-2 sm:gap-4">
           {/* Left — logo */}
-          <Link href="/" className="flex flex-shrink-0 items-center gap-2.5 rounded-md focus-ring">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-forest ring-1 ring-brand-gold/40">
-              <span className="text-sm font-bold text-brand-gold">G</span>
-            </div>
-            <div className="leading-none">
-              <span
-                className={`block text-sm font-bold tracking-tight transition-colors ${
-                  solid ? "text-brand-forest" : "text-white"
-                }`}
-              >
-                GBHPL
-              </span>
-              <span
-                className={`mt-0.5 block text-[10px] uppercase tracking-widest transition-colors ${
-                  solid ? "text-brand-sage" : "text-white/70"
-                }`}
-              >
-                Since 2018
-              </span>
-            </div>
+          <Link href="/" aria-label="GBHPL — Gid's Apple Cider Vinegar, home" className="flex flex-shrink-0 items-center rounded-md focus-ring">
+            <Image
+              src={solid ? "/brand/logo-primary.svg" : "/brand/logo-primary-light.svg"}
+              alt="GBHPL — Gid's Apple Cider Vinegar"
+              width={420}
+              height={120}
+              priority
+              className="hidden h-11 w-auto sm:block"
+            />
+            <span className="flex items-center gap-2 sm:hidden">
+              <Image src="/brand/logo-mark.svg" alt="" width={36} height={36} priority className="h-9 w-9" />
+              <span className={`text-sm font-extrabold tracking-tight ${solid ? "text-brand-forest" : "text-white"}`}>GBHPL</span>
+            </span>
           </Link>
 
           {/* Centre — navigation pill */}
           <nav
             aria-label="Main navigation"
-            className={`hidden lg:flex items-center gap-0.5 rounded-full border p-1 transition-colors ${
+            className={`hidden xl:flex items-center gap-0.5 rounded-full border p-1 transition-colors ${
               scrolled
                 ? "border-brand-forest/10 bg-brand-forest/[0.04]"
                 : "border-white/15 bg-white/10 backdrop-blur-md"
@@ -112,9 +106,9 @@ export function Navbar() {
           </nav>
 
           {/* Right — location, cart, CTA */}
-          <div className="flex flex-shrink-0 items-center gap-2.5">
+          <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2.5">
             <div
-              className={`hidden md:flex items-center gap-1 text-xs font-medium transition-colors ${
+              className={`hidden xl:flex items-center gap-1 text-xs font-medium transition-colors ${
                 solid ? "text-brand-forest/70" : "text-white/80"
               }`}
             >
@@ -122,12 +116,24 @@ export function Navbar() {
               <span className="whitespace-nowrap">Cape Coast</span>
             </div>
 
-            <span className={`hidden md:block h-5 w-px ${solid ? "bg-brand-forest/15" : "bg-white/20"}`} />
+            <Link
+              href="/track"
+              aria-label="Track your order"
+              title="Track your order"
+              className={`inline-flex items-center gap-1 rounded-full border py-0.5 pl-1 pr-2.5 text-[12px] font-bold sm:gap-2 sm:py-1 sm:pl-1.5 sm:pr-4 sm:text-[13px] transition-all duration-200 hover:-translate-y-0.5 focus-ring ${
+                solid
+                  ? "border-brand-forest/20 text-brand-forest hover:border-brand-gold hover:bg-brand-gold/15"
+                  : "border-white/30 text-white hover:border-brand-gold hover:bg-white/10"
+              }`}
+            >
+              <Image src="/icons/track-delivery.svg" alt="" width={32} height={32} className="h-7 w-7 flex-shrink-0 sm:h-8 sm:w-8" />
+              <span className="whitespace-nowrap">Track order</span>
+            </Link>
 
             <button
               onClick={() => setIsCartOpen(true)}
               aria-label={`Open cart — ${totalCount} item${totalCount !== 1 ? "s" : ""}`}
-              className="group flex items-center gap-2 rounded-full bg-brand-gold py-2 pl-4 pr-2 text-brand-forest shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:brightness-105 active:translate-y-0 focus-ring"
+              className="group flex items-center gap-2 rounded-full bg-brand-gold py-2 pl-3 pr-1.5 text-brand-forest sm:pl-4 sm:pr-2 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:brightness-105 active:translate-y-0 focus-ring"
             >
               <ShoppingCart className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline text-[13px] font-bold">Cart</span>
@@ -148,7 +154,7 @@ export function Navbar() {
               onClick={() => setMenuOpen((v) => !v)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
-              className={`rounded-full p-2 transition-colors focus-ring lg:hidden ${
+              className={`rounded-full p-1.5 transition-colors focus-ring sm:p-2 xl:hidden ${
                 solid ? "text-brand-forest hover:bg-brand-forest/10" : "text-white hover:bg-white/10"
               }`}
             >
@@ -161,8 +167,16 @@ export function Navbar() {
         {menuOpen && (
           <nav
             aria-label="Mobile navigation"
-            className="grid gap-1 border-t border-brand-forest/10 pb-4 pt-3 lg:hidden animate-fade-in"
+            className="grid gap-1 border-t border-brand-forest/10 pb-4 pt-3 xl:hidden animate-fade-in"
           >
+            <Link
+              href="/track"
+              onClick={() => setMenuOpen(false)}
+              className="mb-1 flex items-center gap-3 rounded-xl border border-brand-gold/40 bg-brand-gold/15 px-4 py-3 text-sm font-bold text-brand-forest"
+            >
+              <Image src="/icons/track-delivery.svg" alt="" width={28} height={28} className="h-7 w-7" />
+              Track your order
+            </Link>
             {NAV_LINKS.map((link) => {
               const active = activeId === link.href.slice(2);
               return (

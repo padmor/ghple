@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import {
   MapPin,
   ShoppingCart,
   ArrowRight,
+  ArrowDown,
   Phone,
   Mail,
   ChevronDown,
@@ -88,7 +90,7 @@ const BRANCHES = [
     name: "University of Cape Coast HQ",
     type: "Factory Store",
     address: "Plot No. 78,79 Amamoma, UCC, Cape Coast",
-    phone: "+233 XX XXX XXXX",
+    phone: "+233 50 715 4818",
     mapQuery: "Gid's Beverages & Health Products, Amamoma, Cape Coast, Ghana",
   },
 ];
@@ -152,6 +154,7 @@ export default function HomePage() {
   const [activeBranch, setActiveBranch] = useState(0);
   const [joinRole, setJoinRole] = useState("");
   const [joinOpen, setJoinOpen] = useState(false);
+  const [sending, setSending] = useState<"" | "feedback" | "join">("");
   const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
   const productScroller = useRef<HTMLDivElement>(null);
   const processPanel = useRef<HTMLDivElement>(null);
@@ -177,60 +180,58 @@ export default function HomePage() {
       <CheckoutDialog />
       <TrackOrderDialog />
 
-      <main>
+      <main id="top">
         {/* ═══════════════════════════════════════
             HERO — brand statement + product photo
         ═══════════════════════════════════════ */}
-        <section className="relative flex items-center pt-[88px] pb-8 sm:pt-32 sm:pb-14 lg:min-h-screen lg:pt-36 lg:pb-28 overflow-hidden bg-brand-forest">
-          {/* Background image */}
-          <div className="absolute inset-0 z-0">
+        <section className="relative flex flex-col pt-[72px] pb-8 sm:pb-12 lg:pb-10 overflow-hidden bg-brand-forest">
+          {/* Backdrop — the photo's own colours, softened, instead of flat green */}
+          <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
             <Image
-              src="/background.jpg"
+              src="/hero-bg-v2.jpg"
+              alt=""
+              fill
+              sizes="100vw"
+              className="scale-125 object-cover blur-3xl saturate-125"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-sky-950/25 via-black/40 to-black/65" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-forest to-transparent" />
+          </div>
+
+          {/* Background image */}
+          <div className="relative z-0 aspect-[1408/768] w-full flex-shrink-0 lg:mx-auto lg:mt-4 lg:max-w-4xl lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl lg:ring-1 lg:ring-white/10">
+            <Image
+              src="/hero-bg-v2.jpg"
               alt="Gid's Apple Orchard background"
               fill
               priority
-              className="object-cover object-center"
+              className="object-fill"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-forest/95 via-brand-forest/80 to-brand-forest/50" />
-            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-brand-forest to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-brand-forest to-transparent sm:h-24 lg:hidden" />
           </div>
 
-          <div className="relative z-10 section-container w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 sm:gap-12 lg:gap-16">
+          {/* Tagline — top of the hero */}
+          <div className="absolute inset-x-0 top-[84px] z-10 flex justify-center px-4 sm:top-24 lg:top-28">
+            <p className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-white sm:gap-4 sm:text-xs animate-fade-in [text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
+              <span className="h-px w-8 bg-brand-gold sm:w-14" />
+              Raw · Unfiltered · With the Mother
+              <span className="h-px w-8 bg-brand-gold sm:w-14" />
+            </p>
+          </div>
+
+          <div className="relative z-10 section-container w-full pt-4 sm:pt-6">
+            <div className="grid grid-cols-1 items-center">
               {/* Copy */}
-              <div className="lg:col-span-7 sm:text-center lg:text-left">
-                <div className="flex items-center gap-3 sm:block">
-                <div className="min-w-0 flex-1">
-                <h1 className="text-[1.55rem] sm:text-4xl lg:text-5xl lg:whitespace-nowrap font-bold text-white leading-[1.1] tracking-tight animate-fade-in">
-                  Raw. Unfiltered. <span className="text-brand-gold">Real.</span>
+              <div className="mx-auto w-full max-w-3xl text-center">
+                <h1 className="text-[1.4rem] sm:text-4xl lg:text-5xl font-extrabold uppercase text-white leading-[1.1] tracking-tight animate-fade-in">
+                  <span className="text-brand-gold">Gid&apos;s</span> Apple Cider Vinegar
                 </h1>
 
-                <p className="mx-auto lg:mx-0 mt-2 sm:mt-7 max-w-lg text-[12px] sm:text-lg text-white/80 leading-snug sm:leading-relaxed animate-fade-in">
-                  Gid&apos;s Apple Cider Vinegar — handcrafted the authentic way with the living
-                  mother culture intact. Cold-pressed, unpasteurized, and free from shortcuts or
-                  artificial additives.
-                </p>
-                </div>
-
-                {/* Small bottle — phones only */}
-                <div className="relative h-28 w-24 flex-shrink-0 sm:hidden">
-                  <div className="absolute inset-0 rounded-full bg-brand-gold/20 blur-2xl" />
-                  <Image
-                    src="/products/bottle-500ml.jpg"
-                    alt="Gid's Apple Cider Vinegar bottle"
-                    fill
-                    priority
-                    sizes="96px"
-                    className="rounded-2xl object-cover ring-1 ring-white/25 shadow-xl"
-                  />
-                </div>
-                </div>
-
-                <div className="mt-4 sm:mt-10 flex flex-row flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-2 sm:gap-4 animate-fade-in">
+                <div className="mt-4 sm:mt-10 flex flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 sm:gap-4 animate-fade-in">
                   <a href="#products" className="btn-gold flex-1 sm:flex-none justify-center text-xs sm:text-base px-4 sm:px-8 py-2.5 sm:py-4 gap-1.5 sm:gap-2">
                     <span>View All Sizes</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowDown className="w-4 h-4" />
                   </a>
                   <a href="#process" className="btn-white-outline flex-1 sm:flex-none justify-center text-xs sm:text-base px-4 sm:px-8 py-2.5 sm:py-4">
                     See How It&apos;s Made
@@ -238,42 +239,17 @@ export default function HomePage() {
                 </div>
 
                 {/* Trust row */}
-                <div className="mx-auto lg:mx-0 mt-4 sm:mt-12 grid max-w-xl grid-cols-3 gap-1 sm:gap-0 divide-x divide-white/15 border-t border-white/15 pt-3 sm:pt-8 animate-fade-in">
+                <div className="mx-auto mt-4 sm:mt-12 lg:mt-8 grid max-w-2xl grid-cols-3 gap-1 sm:gap-0 divide-x divide-white/15 border-t border-white/15 pt-3 sm:pt-8 animate-fade-in">
                   {[
                     { src: "/icons/delivery.svg", label: "Nationwide delivery across Ghana" },
                     { src: "/icons/quality.svg", label: "Quality & acidity tested" },
                     { src: "/icons/packing.svg", label: "Secure glass bottle packing" },
                   ].map(({ src, label }) => (
-                    <div key={label} className="flex flex-col items-center text-center lg:items-start lg:text-left gap-1 sm:gap-3 px-1 sm:px-5 lg:first:pl-0 lg:last:pr-0">
+                    <div key={label} className="flex flex-col items-center text-center gap-1 sm:gap-3 px-1 sm:px-5">
                       <Image src={src} alt="" width={44} height={44} className="h-7 w-7 sm:h-11 sm:w-11" />
                       <span className="text-[10px] sm:text-sm leading-tight text-white/75">{label}</span>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Product photo */}
-              <div className="hidden sm:flex lg:col-span-5 justify-center animate-fade-in">
-                <div className="relative w-full max-w-[250px] sm:max-w-[340px] lg:max-w-[460px]">
-                  <div className="absolute inset-0 rounded-full bg-brand-gold/15 blur-3xl" />
-                  <div
-                    className="relative aspect-[3/4]"
-                    style={{
-                      WebkitMaskImage:
-                        "radial-gradient(ellipse 62% 66% at 50% 50%, #000 40%, transparent 100%)",
-                      maskImage:
-                        "radial-gradient(ellipse 62% 66% at 50% 50%, #000 40%, transparent 100%)",
-                    }}
-                  >
-                    <Image
-                      src="/products/bottle-500ml.jpg"
-                      alt="Gid's Apple Cider Vinegar 500ml bottle"
-                      fill
-                      priority
-                      className="object-cover"
-                      sizes="460px"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -290,12 +266,12 @@ export default function HomePage() {
               src="/products-bg.jpg"
               alt="Gid's Apple Cider Vinegar handcrafted background"
               fill
-              className="object-cover object-center blur-md scale-105"
+              className="object-cover object-center"
               sizes="100vw"
             />
             {/* Dark gradient overlay for rich contrast, readability, and depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-brand-forest/65 to-black/70" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-forest via-black/25 to-brand-forest/80" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-black/35" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-forest/70 via-transparent to-brand-forest/40" />
           </div>
 
           <div className="relative z-10 section-container">
@@ -835,134 +811,148 @@ export default function HomePage() {
         {/* ═══════════════════════════════════════
             SUPPORT & FEEDBACK — get help, comment or rate
         ═══════════════════════════════════════ */}
-        <section className="bg-brand-ivory py-20" id="support">
+        <section className="bg-brand-ivory py-14 sm:py-20" id="support">
           <div className="section-container">
             <div className="max-w-xl">
               <span className="text-brand-gold font-bold tracking-widest uppercase text-xs">
-                We&apos;re listening
+                Support
               </span>
-              <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-brand-forest">Help &amp; feedback</h2>
+              <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-brand-forest">
+                Help &amp; feedback
+              </h2>
               <p className="mt-3 text-sm leading-relaxed text-brand-forest/60">
-                Need a hand with an order, or want to tell us how we&apos;re doing? Pick one below.
+                Need a hand with an order, or want to tell us how we&apos;re doing?
               </p>
             </div>
 
-            <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
-              {/* Quick contact */}
-              <div className="lg:col-span-4 space-y-3">
-                {[
-                  {
-                    href: "https://wa.me/233507154818?text=Hello%20GBHPL%2C%20I%20need%20help%20with%20my%20order.",
-                    title: "Chat on WhatsApp",
-                    sub: "Fastest way to reach us",
-                    Icon: MessageCircle,
-                    bg: "bg-[#25D366]",
-                  },
-                  {
-                    href: "mailto:hello@gbhpl.com?subject=Support%20request",
-                    title: "Email support",
-                    sub: "hello@gbhpl.com",
-                    Icon: Mail,
-                    bg: "bg-brand-forest",
-                  },
-                  {
-                    href: "tel:+233000000000",
-                    title: "Call us",
-                    sub: "+233 XX XXX XXXX",
-                    Icon: Phone,
-                    bg: "bg-brand-gold",
-                  },
-                ].map(({ href, title, sub, Icon, bg }) => (
-                  <a
-                    key={title}
-                    href={href}
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 rounded-2xl border border-brand-forest/10 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-ring"
-                  >
-                    <span className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-white ${bg}`}>
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span>
-                      <span className="block font-bold text-brand-forest">{title}</span>
-                      <span className="block text-xs text-brand-forest/60">{sub}</span>
-                    </span>
-                  </a>
-                ))}
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+              {/* Contact options */}
+              <div className="lg:col-span-5">
+                <ul className="divide-y divide-brand-forest/10 overflow-hidden rounded-2xl border border-brand-forest/10 bg-white">
+                  {[
+                    {
+                      href: "https://wa.me/233507154818?text=Hello%20GBHPL%2C%20I%20need%20help%20with%20my%20order.",
+                      title: "WhatsApp",
+                      sub: "Fastest way to reach us",
+                      icon: "/icons/contact-chat.svg",
+                    },
+                    {
+                      href: "mailto:hello@gbhpl.com?subject=Support%20request",
+                      title: "Email",
+                      sub: "hello@gbhpl.com",
+                      icon: "/icons/contact-email.svg",
+                    },
+                    {
+                      href: "tel:+233507154818",
+                      title: "Phone",
+                      sub: "+233 50 715 4818",
+                      icon: "/icons/contact-phone.svg",
+                    },
+                  ].map(({ href, title, sub, icon }) => (
+                    <li key={title}>
+                      <a
+                        href={href}
+                        target={href.startsWith("http") ? "_blank" : undefined}
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-brand-ivory focus-ring"
+                      >
+                        <Image src={icon} alt="" width={40} height={40} className="h-10 w-10 flex-shrink-0" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-bold text-brand-forest">{title}</span>
+                          <span className="block truncate text-xs text-brand-forest/60">{sub}</span>
+                        </span>
+                        <ArrowRight className="h-4 w-4 flex-shrink-0 text-brand-forest/30 transition-all group-hover:translate-x-0.5 group-hover:text-brand-gold" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               {/* Rate & comment */}
               <form
-                className="lg:col-span-8 space-y-4 rounded-3xl border border-brand-forest/10 bg-white p-8"
+                noValidate
+                className="rounded-2xl border border-brand-forest/10 bg-white p-5 sm:p-6 lg:col-span-7"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (!feedbackRating) return;
+                  if (sending) return;
                   const f = new FormData(e.currentTarget);
+                  setSending("feedback");
                   const body = [
                     `Rating: ${feedbackRating}/5`,
                     `Name: ${f.get("name")}`,
                     "",
                     `${f.get("comment")}`,
                   ].join("\n");
-                  window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
-                    `Feedback: ${feedbackRating}/5 stars`
-                  )}&body=${encodeURIComponent(body)}`;
+                  setTimeout(() => {
+                    window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
+                      `Feedback: ${feedbackRating}/5 stars`
+                    )}&body=${encodeURIComponent(body)}`;
+                    setSending("");
+                  }, 700);
                 }}
               >
-                <h3 className="text-lg font-bold text-brand-forest">Rate us &amp; leave a comment</h3>
-
-                <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
-                  {[1, 2, 3, 4, 5].map((n) => {
-                    const lit = n <= (feedbackHover || feedbackRating);
-                    return (
-                      <button
-                        key={n}
-                        type="button"
-                        role="radio"
-                        aria-checked={feedbackRating === n}
-                        aria-label={`${n} star${n > 1 ? "s" : ""}`}
-                        onClick={() => setFeedbackRating(n)}
-                        onMouseEnter={() => setFeedbackHover(n)}
-                        onMouseLeave={() => setFeedbackHover(0)}
-                        className="rounded p-1 transition-transform hover:scale-110 focus-ring"
-                      >
-                        <Star
-                          className={`h-8 w-8 transition-colors ${
-                            lit ? "fill-brand-gold text-brand-gold" : "text-brand-forest/20"
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                  <span className="ml-3 text-sm text-brand-forest/60">
-                    {feedbackRating ? `${feedbackRating} out of 5` : "Tap a star to rate"}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-base font-bold text-brand-forest">Rate us</h3>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center" role="radiogroup" aria-label="Rating">
+                      {[1, 2, 3, 4, 5].map((n) => {
+                        const lit = n <= (feedbackHover || feedbackRating);
+                        return (
+                          <button
+                            key={n}
+                            type="button"
+                            role="radio"
+                            aria-checked={feedbackRating === n}
+                            aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                            onClick={() => setFeedbackRating(n)}
+                            onMouseEnter={() => setFeedbackHover(n)}
+                            onMouseLeave={() => setFeedbackHover(0)}
+                            className="rounded p-0.5 focus-ring"
+                          >
+                            <Star
+                              className={`h-6 w-6 transition-colors ${
+                                lit ? "fill-brand-gold text-brand-gold" : "text-brand-forest/20"
+                              }`}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <span className="w-16 text-xs text-brand-forest/60">
+                      {["", "Poor", "Fair", "Good", "Very good", "Excellent"][
+                        feedbackHover || feedbackRating
+                      ]}
+                    </span>
+                  </div>
                 </div>
 
-                <input
-                  name="name"
-                  required
-                  placeholder="Your name"
-                  className="w-full rounded-xl border border-brand-forest/15 bg-brand-ivory/40 px-4 py-3 text-sm outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
-                />
-                <textarea
-                  name="comment"
-                  required
-                  rows={4}
-                  placeholder="Your comment, question or suggestion"
-                  className="w-full resize-none rounded-xl border border-brand-forest/15 bg-brand-ivory/40 px-4 py-3 text-sm outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
-                />
-                <button
-                  type="submit"
-                  disabled={!feedbackRating}
-                  className="btn-gold w-full justify-center gap-2 py-3.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span>Send feedback</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <p className="text-center text-[11px] text-brand-forest/50">
-                  This opens your email app with your rating and comment ready to send to hello@gbhpl.com.
-                </p>
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <input
+                    name="name"
+                    placeholder="Your name"
+                    className="w-full rounded-lg border border-brand-forest/15 bg-white px-3.5 py-2.5 text-sm text-black outline-none placeholder:text-brand-forest/40 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30 sm:col-span-2"
+                  />
+                  <textarea
+                    name="comment"
+                    rows={3}
+                    placeholder="Your comment or question"
+                    className="w-full resize-none rounded-lg border border-brand-forest/15 bg-white px-3.5 py-2.5 text-sm text-black outline-none placeholder:text-brand-forest/40 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30 sm:col-span-2"
+                  />
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-[11px] text-brand-forest/50">
+                    Opens your email app, ready to send to hello@gbhpl.com.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={!!sending}
+                    className="btn-gold gap-2 px-5 py-2.5 text-sm font-bold disabled:cursor-wait disabled:opacity-80"
+                  >
+                    <span>{sending === "feedback" ? "Sending…" : "Send feedback"}</span>
+                    {sending === "feedback" ? <Spinner /> : <ArrowRight className="h-4 w-4" />}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -1127,10 +1117,13 @@ export default function HomePage() {
               </DialogHeader>
 
               <form
+                noValidate
                 className="space-y-3"
                 onSubmit={(e) => {
                   e.preventDefault();
+                  if (sending) return;
                   const f = new FormData(e.currentTarget);
+                  setSending("join");
                   const body = [
                     `Name: ${f.get("name")}`,
                     `Email: ${f.get("email")}`,
@@ -1139,15 +1132,18 @@ export default function HomePage() {
                     "",
                     `${f.get("message")}`,
                   ].join("\n");
-                  window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
-                    `Application: ${f.get("role")}`
-                  )}&body=${encodeURIComponent(body)}`;
-                  setJoinOpen(false);
+                  const role = `${f.get("role")}`;
+                  setTimeout(() => {
+                    window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
+                      `Application: ${role}`
+                    )}&body=${encodeURIComponent(body)}`;
+                    setSending("");
+                    setJoinOpen(false);
+                  }, 700);
                 }}
               >
                 <select
                   name="role"
-                  required
                   value={joinRole}
                   onChange={(e) => setJoinRole(e.target.value)}
                   className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
@@ -1164,34 +1160,34 @@ export default function HomePage() {
                 </select>
                 <input
                   name="name"
-                  required
                   placeholder="Full name"
                   className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
                 />
                 <input
                   name="email"
-                  type="email"
-                  required
+                  type="text" inputMode="email"
                   placeholder="Email address"
                   className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
                 />
                 <input
                   name="phone"
                   type="tel"
-                  required
                   placeholder="Phone number"
                   className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
                 />
                 <textarea
                   name="message"
-                  required
                   rows={3}
                   placeholder="A short note about you"
                   className="w-full resize-none rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/30"
                 />
-                <button type="submit" className="btn-gold w-full justify-center gap-2 py-3 text-sm font-bold">
-                  <span>Send application</span>
-                  <ArrowRight className="h-4 w-4" />
+                <button
+                  type="submit"
+                  disabled={!!sending}
+                  className="btn-gold w-full justify-center gap-2 py-3 text-sm font-bold disabled:cursor-wait disabled:opacity-80"
+                >
+                  <span>{sending === "join" ? "Sending…" : "Send application"}</span>
+                  {sending === "join" ? <Spinner /> : <ArrowRight className="h-4 w-4" />}
                 </button>
                 <p className="text-center text-[11px] text-black/50">
                   Opens your email app, ready to send to hello@gbhpl.com.
@@ -1210,12 +1206,13 @@ export default function HomePage() {
               <div className="grid grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr_1fr] gap-x-3 gap-y-5 sm:gap-10">
                 {/* Brand */}
                 <div className="col-span-3 lg:col-span-1">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-brand-gold">
-                      <span className="text-xs font-bold text-brand-forest">G</span>
-                    </div>
-                    <span className="text-lg sm:text-xl font-bold tracking-tight text-white">GBHPL</span>
-                  </div>
+                  <Image
+                    src="/brand/logo-primary-light.svg"
+                    alt="GBHPL — Gid's Apple Cider Vinegar"
+                    width={420}
+                    height={120}
+                    className="h-11 w-auto"
+                  />
                   <p className="mt-2 sm:mt-3 max-w-xs text-[11px] sm:text-xs leading-relaxed">
                     Gid&apos;s Beverages &amp; Health Products Ltd. Crafting honest health products
                     in Cape Coast since 2018.
@@ -1227,8 +1224,8 @@ export default function HomePage() {
                     </li>
                     <li className="flex items-center gap-2">
                       <Phone className="h-3.5 w-3.5 flex-shrink-0 text-brand-gold" />
-                      <a href="tel:+233000000000" className="transition-colors hover:text-white">
-                        +233 XX XXX XXXX
+                      <a href="tel:+233507154818" className="transition-colors hover:text-white">
+                        +233 50 715 4818
                       </a>
                     </li>
                     <li className="flex items-center gap-2">
@@ -1271,16 +1268,17 @@ export default function HomePage() {
                     links: [
                       { href: "#products", label: "500 ml Bottle" },
                       { href: "#products", label: "1000 ml Bottle" },
-                      { href: "/trade", label: "Wholesale" },
+                      { href: "#trade", label: "Wholesale" },
                     ],
                   },
                   {
                     title: "Company",
                     links: [
-                      { href: "/about", label: "About Us" },
+                      { href: "#about", label: "About Us" },
                       { href: "#process", label: "Our Process" },
-                      { href: "/trade", label: "Trade Partners" },
+                      { href: "#trade", label: "Trade Partners" },
                       { href: "#faq", label: "FAQs" },
+                      { href: "/track", label: "Track Order" },
                       { href: "/returns", label: "Return Policy" },
                     ],
                   },

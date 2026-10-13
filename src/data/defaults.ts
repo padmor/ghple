@@ -235,7 +235,7 @@ export const DEFAULT_TRADE_TIERS: TradeTier[] = [
 export const DEFAULT_SETTINGS: SiteSettings = {
   tradeEmail: "trade@gbhpl.com",
   deliveryZones: ["Accra", "Kumasi", "Cape Coast", "Takoradi", "Tamale"],
-  whatsappNumber: "+233 XX XXX XXXX",
-  phone: "+233 XX XXX XXXX",
+  whatsappNumber: "+233507154818",
+  phone: "+233507154818",
   address: "Cape Coast, Central Region, Ghana",
 };

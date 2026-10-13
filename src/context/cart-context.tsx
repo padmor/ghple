@@ -1,9 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { Product, CartItem, OrderDetails } from "@/types/store";
-
-const STORAGE_KEY = "gbhpl-cart-v2";
 
 interface CartContextType {
   items: CartItem[];
@@ -31,23 +29,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isTrackOpen, setIsTrackOpen] = useState(false);
   const [recentOrder, setRecentOrder] = useState<OrderDetails | null>(null);
-
-  // Persist cart across page refreshes (session only)
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setItems(parsed);
-      }
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    } catch {}
-  }, [items]);
 
   const addToCart = (product: Product, quantity = 1) => {
     setItems((prev) => {

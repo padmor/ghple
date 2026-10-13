@@ -80,6 +80,10 @@ const config: Config = {
         display: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
       keyframes: {
+        loadbar: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(200%)" },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -103,6 +107,10 @@ const config: Config = {
         "scale-in": {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
+        },
+        "sheet-up": {
+          from: { transform: "translateY(100%)" },
+          to: { transform: "translateY(0)" },
         },
         shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
@@ -128,6 +136,7 @@ const config: Config = {
         "fade-in-left": "fade-in-left 0.4s ease-out",
         "slide-down": "slide-down 0.25s ease-out",
         "scale-in": "scale-in 0.25s ease-out",
+        "sheet-up": "sheet-up 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
         shimmer: "shimmer 2.5s linear infinite",
         "drawer-in": "drawer-in 0.3s ease-out",
         "drawer-out": "drawer-out 0.3s ease-in",

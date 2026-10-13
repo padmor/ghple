@@ -75,7 +75,6 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [tradeTiers, setTradeTiers] = useState<TradeTier[]>(DEFAULT_TRADE_TIERS);
   const [ceo, setCeo] = useState<CEOInfo>(DEFAULT_CEO);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
-  const [mounted, setMounted] = useState(false);
   const [demoCount, setDemoCount] = useState(0);
 
   useEffect(() => {
@@ -91,67 +90,7 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
     [products, demoCount]
   );
 
-  // Load persisted admin edits from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("gbhpl_manager_data_v1");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.products) && parsed.products.length > 0) {
-          const enriched = parsed.products.map((p: Product) => {
-            if (p.image) return p;
-            const defaultMatch = DEFAULT_PRODUCTS.find(
-              (dp) => dp.id === p.id || dp.size === p.size
-            );
-            if (defaultMatch?.image) {
-              return { ...p, image: defaultMatch.image };
-            }
-            return {
-              ...p,
-              image:
-                p.volumeMl >= 1000
-                  ? "/products/bottle-1000ml.jpg"
-                  : "/products/bottle-500ml.jpg",
-            };
-          });
-          setProducts(enriched);
-        }
-        if (Array.isArray(parsed.benefits) && parsed.benefits.length > 0) {
-          setBenefits(parsed.benefits);
-        }
-        if (Array.isArray(parsed.processSteps) && parsed.processSteps.length > 0) {
-          setProcessSteps(parsed.processSteps);
-        }
-        if (Array.isArray(parsed.tradeTiers) && parsed.tradeTiers.length > 0) {
-          setTradeTiers(parsed.tradeTiers);
-        }
-        if (parsed.ceo) setCeo(parsed.ceo);
-        if (parsed.settings) setSettings(parsed.settings);
-      }
-    } catch (e) {
-      console.error("Failed to load manager data:", e);
-    } finally {
-      setMounted(true);
-    }
-  }, []);
-
-  // Sync admin edits to localStorage
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem(
-        "gbhpl_manager_data_v1",
-        JSON.stringify({
-          products,
-          benefits,
-          processSteps,
-          tradeTiers,
-          ceo,
-          settings,
-        })
-      );
-    } catch {}
-  }, [mounted, products, benefits, processSteps, tradeTiers, ceo, settings]);
+  // Nothing is saved: everything lives in memory and resets on reload.
 
   // ── Products ──────────────────────────────
   const addProduct = (p: Omit<Product, "id">) =>

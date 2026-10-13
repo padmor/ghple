@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, CheckCircle, Package } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
+import { X, CheckCircle } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { formatGHS } from "@/lib/utils";
 
@@ -25,10 +28,10 @@ const GHANA_REGIONS = [
 ];
 
 const PAYMENT_METHODS = [
-  { value: "momo_mtn", label: "MTN Mobile Money" },
-  { value: "momo_telecel", label: "Telecel Cash" },
-  { value: "momo_at", label: "AirtelTigo Money" },
-  { value: "cash", label: "Cash on Delivery" },
+  { value: "momo_mtn", label: "MTN Mobile Money", icon: "/icons/pay-mtn.svg", logo: "/icons/logos/mtn.png" },
+  { value: "momo_telecel", label: "Telecel Cash", icon: "/icons/pay-telecel.svg", logo: "/icons/logos/telecel.png" },
+  { value: "momo_at", label: "AirtelTigo Money", icon: "/icons/pay-airteltigo.svg", logo: "/icons/logos/airteltigo.png" },
+  { value: "cash", label: "Cash on Delivery", icon: "/icons/pay-cash.svg", logo: "/icons/logos/cash.png" },
 ];
 
 const DELIVERY_FEE = 20;
@@ -43,8 +46,9 @@ export function CheckoutDialog() {
     subtotal,
     clearCart,
     setRecentOrder,
-    setIsTrackOpen,
+    recentOrder,
   } = useCart();
+  const router = useRouter();
 
   const [step, setStep] = useState<Step>("form");
   const [form, setForm] = useState({
@@ -59,19 +63,21 @@ export function CheckoutDialog() {
 
   const total = subtotal + DELIVERY_FEE;
 
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!form.customerName.trim()) e.customerName = "Full name is required";
-    if (!form.phone.trim()) e.phone = "Phone number is required";
-    else if (!/^(\+233|0)[0-9]{9}$/.test(form.phone.replace(/\s/g, "")))
-      e.phone = "Enter a valid Ghana phone number";
-    if (!form.region) e.region = "Please select your region";
-    if (!form.deliveryAddress.trim()) e.deliveryAddress = "Delivery address is required";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  // No restrictions: any (even empty) entry is accepted.
+  const validate = () => true;
+
+  const [placing, setPlacing] = useState(false);
 
   const handleSubmitOrder = () => {
+    if (placing) return;
+    setPlacing(true);
+    setTimeout(() => {
+      setPlacing(false);
+      placeOrder();
+    }, 1200);
+  };
+
+  const placeOrder = () => {
     const orderId = `GBH-${Date.now().toString(36).toUpperCase()}`;
     const order = {
       id: orderId,
@@ -100,7 +106,7 @@ export function CheckoutDialog() {
 
   const handleTrack = () => {
     handleClose();
-    setIsTrackOpen(true);
+    router.push(recentOrder ? `/track?id=${encodeURIComponent(recentOrder.id)}` : "/track");
   };
 
   const field = (
@@ -178,7 +184,7 @@ export function CheckoutDialog() {
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {/* ── Step 1: Form ── */}
           {step === "form" && (
-            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (validate()) setStep("review"); }}>
+            <form noValidate className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (validate()) setStep("review"); }}>
               {field("customerName", "Full Name", "text", "e.g. Ama Mensah")}
               {field("phone", "Phone Number", "tel", "e.g. 0244 000 000")}
 
@@ -213,7 +219,7 @@ export function CheckoutDialog() {
                   {PAYMENT_METHODS.map((pm) => (
                     <label
                       key={pm.value}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-colors text-sm font-medium
+                      className={`flex items-center gap-2.5 p-2.5 rounded-xl border-2 cursor-pointer transition-colors text-xs sm:text-sm font-medium
                         ${form.paymentMethod === pm.value
                           ? "border-brand-forest bg-brand-forest/5 text-brand-forest"
                           : "border-border text-brand-forest/60 hover:border-brand-forest/40"
@@ -227,12 +233,22 @@ export function CheckoutDialog() {
                         onChange={() => setForm((p) => ({ ...p, paymentMethod: pm.value }))}
                         className="sr-only"
                       />
+                      <img
+                        src={pm.logo}
+                        alt=""
+                        className="w-9 h-9 flex-shrink-0 rounded-lg object-contain"
+                        onError={(e) => {
+                          if (e.currentTarget.dataset.fallback) return;
+                          e.currentTarget.dataset.fallback = "1";
+                          e.currentTarget.src = pm.icon;
+                        }}
+                      />
+                      <span className="flex-1 leading-tight">{pm.label}</span>
                       <span className={`w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors
                         ${form.paymentMethod === pm.value
                           ? "border-brand-forest bg-brand-forest"
                           : "border-current"}`}
                       />
-                      {pm.label}
                     </label>
                   ))}
                 </div>
@@ -306,15 +322,19 @@ export function CheckoutDialog() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setStep("form")}
-                  className="btn-forest-outline flex-1 justify-center text-sm py-2.5"
+                  disabled={placing}
+                  className="btn-forest-outline flex-1 justify-center text-sm py-2.5 disabled:opacity-50"
                 >
                   Edit
                 </button>
                 <button
                   onClick={handleSubmitOrder}
-                  className="btn-gold flex-1 justify-center text-sm py-2.5"
+                  disabled={placing}
+                  aria-busy={placing}
+                  className="btn-gold flex-1 justify-center gap-2 text-sm py-2.5 disabled:cursor-wait disabled:opacity-80"
                 >
-                  Confirm Order
+                  {placing && <Spinner />}
+                  {placing ? "Placing order…" : "Confirm Order"}
                 </button>
               </div>
             </div>
@@ -339,7 +359,7 @@ export function CheckoutDialog() {
                   onClick={handleTrack}
                   className="btn-forest-outline flex-1 justify-center gap-2 text-sm"
                 >
-                  <Package className="w-4 h-4" /> Track Order
+                  <Image src="/icons/track-delivery.svg" alt="" width={28} height={28} className="h-7 w-7" /> Track Order
                 </button>
                 <button
                   onClick={handleClose}
