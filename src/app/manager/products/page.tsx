@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { Plus, Trash2, ToggleLeft, ToggleRight, Save, Image as ImageIcon, Upload, X } from "lucide-react";
 import { useManager } from "@/context/manager-context";
 import { formatGHS } from "@/lib/utils";
@@ -68,9 +69,13 @@ function ProductRow({
           {/* Product Thumbnail */}
           <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-lg bg-black/40 border border-white/10 flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
             {product.image ? (
-              <img
+              <Image
                 src={product.image}
                 alt={product.size}
+                width={320}
+                height={400}
+                sizes="80px"
+                unoptimized={/^(https?:)?\/\//.test(product.image) || product.image.startsWith("data:") || product.image.startsWith("blob:")}
                 className="w-full h-full object-contain"
               />
             ) : (
@@ -149,7 +154,7 @@ function ProductRow({
               <div className="w-20 h-24 rounded-lg bg-black/40 border border-white/15 flex-shrink-0 flex items-center justify-center overflow-hidden p-1 relative group">
                 {draft.image ? (
                   <>
-                    <img src={draft.image} alt="Preview" className="w-full h-full object-contain" />
+                    <Image src={draft.image} alt="Preview" width={320} height={384} sizes="80px" unoptimized={/^(https?:)?\/\//.test(draft.image) || draft.image.startsWith("data:") || draft.image.startsWith("blob:")} className="w-full h-full object-contain" />
                     <button
                       type="button"
                       onClick={() => setDraft((d) => ({ ...d, image: undefined }))}
@@ -421,7 +426,7 @@ export default function ProductsPage() {
               {/* Image Preview */}
               <div className="w-20 h-24 rounded-lg bg-black/40 border border-white/15 flex-shrink-0 flex items-center justify-center overflow-hidden p-1 relative">
                 {newProduct.image ? (
-                  <img src={newProduct.image} alt="Preview" className="w-full h-full object-contain" />
+                  <Image src={newProduct.image} alt="Preview" width={320} height={384} sizes="80px" unoptimized={/^(https?:)?\/\//.test(newProduct.image) || newProduct.image.startsWith("data:") || newProduct.image.startsWith("blob:")} className="w-full h-full object-contain" />
                 ) : (
                   <span className="text-[10px] text-slate-500 text-center px-1">No Image</span>
                 )}
