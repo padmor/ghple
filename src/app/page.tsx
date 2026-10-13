@@ -687,6 +687,7 @@ export default function HomePage() {
                           src={ceo.photoPath}
                           alt={ceo.name}
                           fill
+                          sizes="(min-width: 640px) 288px, 224px"
                           className="object-cover object-center"
                         />
                       ) : (
