@@ -62,7 +62,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     volumeMl: 500,
     price: 105,
     badge: "Most Popular",
-    image: "/products/bottle-500ml.jpg",
+    image: "/images/products/bottle-500ml.jpg",
     inStock: true,
     description:
       "Raw, unfiltered apple cider vinegar with the mother culture. Cold-pressed and handcrafted in Cape Coast, Ghana.",
@@ -74,7 +74,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     volumeMl: 1000,
     price: 170,
     badge: "Best Value",
-    image: "/products/bottle-1000ml.jpg",
+    image: "/images/products/bottle-1000ml.jpg",
     inStock: true,
     description:
       "Family size. Ideal for daily cooking and wellness routines. Same premium quality, more for your money.",
@@ -87,7 +87,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     volumeMl: 250,
     price: 60,
     badge: "Starter",
-    image: "/products/bottle-500ml.jpg",
+    image: "/images/products/bottle-500ml.jpg",
     inStock: true,
     description:
       "A small bottle to try our raw, unfiltered apple cider vinegar with the mother culture.",
@@ -98,7 +98,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     size: "750 ml",
     volumeMl: 750,
     price: 135,
-    image: "/products/bottle-500ml.jpg",
+    image: "/images/products/bottle-500ml.jpg",
     inStock: true,
     description:
       "A mid-size bottle for weekly use in cooking, dressings and your daily wellness routine.",
@@ -110,7 +110,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     volumeMl: 2000,
     price: 310,
     badge: "Bulk",
-    image: "/products/bottle-1000ml.jpg",
+    image: "/images/products/bottle-1000ml.jpg",
     inStock: true,
     description:
       "A large container for busy kitchens and regular users. The same raw, unfiltered quality.",
@@ -122,7 +122,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     volumeMl: 1000,
     price: 240,
     badge: "Gift",
-    image: "/products/bottle-1000ml.jpg",
+    image: "/images/products/bottle-1000ml.jpg",
     inStock: true,
     description:
       "Two bottles presented together, ready to give to someone who cares about natural health.",

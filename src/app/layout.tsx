@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/cart-context";
+import { SmoothScroll } from "@/components/ui/smooth-scroll";
 import { ManagerProvider } from "@/context/manager-context";
 
 const outfit = Outfit({
@@ -38,16 +39,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-GH" className={`${outfit.variable} scroll-smooth`}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Montserrat:wght@700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en-GH" className={`${outfit.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased flex flex-col">
+        <SmoothScroll />
         <ManagerProvider>
           <CartProvider>{children}</CartProvider>
         </ManagerProvider>

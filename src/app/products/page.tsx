@@ -17,18 +17,18 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { useManager } from "@/context/manager-context";
-import { Navbar } from "@/components/navbar";
-import { CartDrawer } from "@/components/cart-drawer";
-import { CheckoutDialog } from "@/components/checkout-dialog";
-import { BottleIllustration } from "@/components/bottle-illustration";
+import { Navbar } from "@/components/layout/navbar";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CheckoutDialog } from "@/components/cart/checkout-dialog";
+import { BottleIllustration } from "@/components/product/bottle-illustration";
 import { formatGHS } from "@/lib/utils";
 
 type Sort = "featured" | "price-asc" | "price-desc";
 
 const ASSURANCES = [
-  { src: "/icons/delivery.svg", label: "Nationwide delivery across Ghana" },
-  { src: "/icons/quality.svg", label: "Quality & acidity tested" },
-  { src: "/icons/packing.svg", label: "Secure glass bottle packing" },
+  { src: "/icons/benefits/delivery.svg", label: "Nationwide delivery across Ghana" },
+  { src: "/icons/benefits/quality.svg", label: "Quality & acidity tested" },
+  { src: "/icons/benefits/packing.svg", label: "Secure glass bottle packing" },
 ];
 
 export default function ProductsPage() {
@@ -84,7 +84,7 @@ export default function ProductsPage() {
         {/* Background — identical to the Products section on the landing page */}
         <div className="relative z-0 mt-[72px] aspect-[1376/768] w-full overflow-hidden sm:absolute sm:inset-0 sm:mt-0 sm:aspect-auto" aria-hidden="true">
           <Image
-            src="/products-bg.jpg"
+            src="/images/backgrounds/products-bg.jpg"
             alt=""
             fill
             priority

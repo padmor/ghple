@@ -1,1 +1,0 @@
-import './backend/serve.mjs';

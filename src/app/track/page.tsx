@@ -6,18 +6,18 @@ import Link from "next/link";
 import { ArrowRight, Package, Search } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { useManager } from "@/context/manager-context";
-import { Navbar } from "@/components/navbar";
-import { CartDrawer } from "@/components/cart-drawer";
-import { CheckoutDialog } from "@/components/checkout-dialog";
+import { Navbar } from "@/components/layout/navbar";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CheckoutDialog } from "@/components/cart/checkout-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { formatGHS } from "@/lib/utils";
 import type { OrderDetails } from "@/types/store";
 
 const STEPS = [
-  { key: "pending_payment", label: "Order received", note: "We have your order", img: "/icons/track-received.svg" },
-  { key: "confirmed", label: "Confirmed", note: "Payment confirmed, packing", img: "/icons/track-confirmed.svg" },
-  { key: "out_for_delivery", label: "Out for delivery", note: "On its way to you", img: "/icons/track-delivery.svg" },
-  { key: "delivered", label: "Delivered", note: "Enjoy your vinegar", img: "/icons/track-delivered.svg" },
+  { key: "pending_payment", label: "Order received", note: "We have your order", img: "/icons/track/track-received.svg" },
+  { key: "confirmed", label: "Confirmed", note: "Payment confirmed, packing", img: "/icons/track/track-confirmed.svg" },
+  { key: "out_for_delivery", label: "Out for delivery", note: "On its way to you", img: "/icons/track/track-delivery.svg" },
+  { key: "delivered", label: "Delivered", note: "Enjoy your vinegar", img: "/icons/track/track-delivered.svg" },
 ] as const;
 
 const PAYMENT_LABEL: Record<string, string> = {
@@ -93,7 +93,7 @@ export default function TrackOrderPage() {
       setSearched(input.trim());
       setChecking(false);
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 500);
+    }, 250);
   };
 
   return (
@@ -109,7 +109,7 @@ export default function TrackOrderPage() {
           aria-hidden="true"
         >
           <Image
-            src="/products-bg.jpg"
+            src="/images/backgrounds/products-bg.jpg"
             alt=""
             fill
             priority
@@ -342,7 +342,7 @@ export default function TrackOrderPage() {
               </>
             ) : (
               <div className="mx-auto max-w-xl rounded-3xl border border-white/70 bg-white p-7 text-center shadow-[0_18px_40px_rgba(0,0,0,0.3)] sm:p-9">
-                <Image src="/icons/track-parcel.svg" alt="" width={80} height={80} className="mx-auto h-20 w-20" />
+                <Image src="/icons/track/track-parcel.svg" alt="" width={80} height={80} className="mx-auto h-20 w-20" />
                 <h2 className="mt-4 text-lg font-extrabold text-black">
                   {!searched ? "Enter your order ID" : `No order found for “${searched}”`}
                 </h2>
@@ -358,14 +358,14 @@ export default function TrackOrderPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white py-1.5 pl-1.5 pr-5 text-sm font-bold text-black transition-all hover:-translate-y-0.5 hover:border-brand-gold"
                   >
-                    <Image src="/icons/contact-chat.svg" alt="" width={32} height={32} className="h-8 w-8" />
+                    <Image src="/icons/contact/contact-chat.svg" alt="" width={32} height={32} className="h-8 w-8" />
                     WhatsApp us
                   </a>
                   <a
                     href="mailto:hello@gbhpl.com?subject=Order%20update"
                     className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white py-1.5 pl-1.5 pr-5 text-sm font-bold text-black transition-all hover:-translate-y-0.5 hover:border-brand-gold"
                   >
-                    <Image src="/icons/contact-email.svg" alt="" width={32} height={32} className="h-8 w-8" />
+                    <Image src="/icons/contact/contact-email.svg" alt="" width={32} height={32} className="h-8 w-8" />
                     Email us
                   </a>
                 </div>

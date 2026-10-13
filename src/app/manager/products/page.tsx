@@ -9,8 +9,8 @@ import { Product } from "@/data/defaults";
 const BADGE_OPTIONS = ["", "Most Popular", "Best Value", "New", "Limited"];
 
 const PRESET_IMAGES = [
-  { label: "500 ml Bottle", url: "/products/bottle-500ml.jpg" },
-  { label: "1000 ml Family", url: "/products/bottle-1000ml.jpg" },
+  { label: "500 ml Bottle", url: "/images/products/bottle-500ml.jpg" },
+  { label: "1000 ml Family", url: "/images/products/bottle-1000ml.jpg" },
 ];
 
 function ProductRow({
@@ -204,7 +204,7 @@ function ProductRow({
 
                 <input
                   type="text"
-                  placeholder="Image URL (e.g. /products/bottle-500ml.jpg or https://...)"
+                  placeholder="Image URL (e.g. /images/products/bottle-500ml.jpg or https://...)"
                   value={draft.image || ""}
                   onChange={(e) => setDraft((d) => ({ ...d, image: e.target.value }))}
                   className="form-input text-xs bg-brand-navy border-white/15 text-white placeholder:text-slate-600 w-full"
@@ -298,7 +298,7 @@ export default function ProductsPage() {
     volumeMl: 500,
     price: 0,
     badge: "",
-    image: "/products/bottle-500ml.jpg",
+    image: "/images/products/bottle-500ml.jpg",
     description: "",
   });
   const addFileInputRef = useRef<HTMLInputElement>(null);
@@ -327,8 +327,8 @@ export default function ProductsPage() {
       image:
         newProduct.image ||
         (newProduct.volumeMl >= 1000
-          ? "/products/bottle-1000ml.jpg"
-          : "/products/bottle-500ml.jpg"),
+          ? "/images/products/bottle-1000ml.jpg"
+          : "/images/products/bottle-500ml.jpg"),
       description: newProduct.description,
       inStock: true,
     });
@@ -337,7 +337,7 @@ export default function ProductsPage() {
       volumeMl: 500,
       price: 0,
       badge: "",
-      image: "/products/bottle-500ml.jpg",
+      image: "/images/products/bottle-500ml.jpg",
       description: "",
     });
     setShowAdd(false);
@@ -467,7 +467,7 @@ export default function ProductsPage() {
 
                 <input
                   type="text"
-                  placeholder="Image URL (e.g. /products/bottle-500ml.jpg or https://...)"
+                  placeholder="Image URL (e.g. /images/products/bottle-500ml.jpg or https://...)"
                   value={newProduct.image || ""}
                   onChange={(e) => setNewProduct((d) => ({ ...d, image: e.target.value }))}
                   className="form-input text-xs bg-brand-navy border-white/15 text-white placeholder:text-slate-600 w-full"
