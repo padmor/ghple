@@ -25,21 +25,25 @@ export const PROCESS_STEPS = [
   {
     title: "Source Harvesting",
     text: "We manually select healthy, unblemished apples from the orchards in South Africa.",
+    image: "/process/harvesting.jpg",
     specs: [{ label: "Standard", val: "Organic Grade A" }, { label: "Method", val: "Hand-picked" }],
   },
   {
     title: "Cold Press Extraction",
     text: "Apples are washed and cold-pressed within 24 hours of harvest to preserve delicate enzymes.",
+    image: "/process/extraction.jpg",
     specs: [{ label: "Temp", val: "< 4°C" }, { label: "Yield", val: "Pure Juice" }],
   },
   {
     title: "Oak Barrel Fermentation",
     text: "The critical 'Double Fermentation'. First, yeast converts sugars to alcohol. Second, bacteria convert alcohol to acetic acid (5-20%), forming the 'Mother'.",
+    image: "/process/fermentation.jpg",
     specs: [{ label: "Vessel", val: "French Oak" }, { label: "Acidity", val: "5-20%" }],
   },
   {
     title: "Mature Cider Bottling",
     text: "Bottled raw and unfiltered. No pasteurization ensures enzymes and probiotics remain biologically active and structurally potent.",
+    image: "/process/bottling.jpg",
     specs: [{ label: "State", val: "Raw/Unfiltered" }, { label: "Pasteurized", val: "No" }],
   },
 ];

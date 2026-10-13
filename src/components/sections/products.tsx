@@ -92,9 +92,13 @@ export function ProductsSection() {
                             </span>
                           )}
                           {product.image ? (
-                            <img
+                            <Image
                               src={product.image}
                               alt={`${product.name} — ${product.size}`}
+                              width={600}
+                              height={600}
+                              sizes="(max-width: 640px) 35vw, 220px"
+                              unoptimized={/^(https?:)?\/\//.test(product.image) || product.image.startsWith("data:") || product.image.startsWith("blob:")}
                               className="relative h-full min-h-[180px] w-full object-contain p-3 drop-shadow-[0_10px_14px_rgba(0,0,0,0.2)] transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (

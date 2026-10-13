@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROCESS_STEPS } from "@/data/home";
@@ -120,6 +121,16 @@ export function ProcessSection() {
 
               {/* Detail panel */}
               <div ref={processPanel} className="relative h-[560px] sm:h-[500px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl bg-brand-forest scroll-mt-24">
+                <Image
+                  key={PROCESS_STEPS[activeStep].image}
+                  src={PROCESS_STEPS[activeStep].image}
+                  alt={PROCESS_STEPS[activeStep].title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-opacity duration-500"
+                  priority={activeStep === 0}
+                />
+                <div className="absolute inset-0 bg-brand-forest/20" />
                 <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gold/15 blur-3xl pointer-events-none" />
 
                 {/* Segmented progress */}
