@@ -222,7 +222,7 @@ export const DEFAULT_CEO: CEOInfo = {
   bio: "Gideon founded Gid's Beverages & Health Products Ltd with one goal: to produce the highest-quality, naturally-made health beverages in Ghana. Starting in a small facility in Cape Coast, he has grown the brand through an unwavering commitment to quality and transparency.",
   quote:
     "We don't cut corners. Every bottle carries our name, and that means something to us.",
-  photoPath: "", // Manager uploads via panel
+  photoPath: "/founder/ceo.png",
 };
 
 // ── Trade Tiers ───────────────────────────────
@@ -239,3 +239,4 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   phone: "+233507154818",
   address: "Cape Coast, Central Region, Ghana",
 };
+

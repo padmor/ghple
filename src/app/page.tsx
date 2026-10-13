@@ -65,21 +65,25 @@ const PROCESS_STEPS = [
   {
     title: "Source Harvesting",
     text: "We manually select healthy, unblemished apples from the orchards in South Africa.",
+    image: "/process/harvesting.jpg",
     specs: [{ label: "Standard", val: "Organic Grade A" }, { label: "Method", val: "Hand-picked" }],
   },
   {
     title: "Cold Press Extraction",
     text: "Apples are washed and cold-pressed within 24 hours of harvest to preserve delicate enzymes.",
+    image: "/process/extraction.jpg",
     specs: [{ label: "Temp", val: "< 4°C" }, { label: "Yield", val: "Pure Juice" }],
   },
   {
     title: "Oak Barrel Fermentation",
     text: "The critical 'Double Fermentation'. First, yeast converts sugars to alcohol. Second, bacteria convert alcohol to acetic acid (5-20%), forming the 'Mother'.",
+    image: "/process/fermentation.jpg",
     specs: [{ label: "Vessel", val: "French Oak" }, { label: "Acidity", val: "5-20%" }],
   },
   {
     title: "Mature Cider Bottling",
     text: "Bottled raw and unfiltered. No pasteurization ensures enzymes and probiotics remain biologically active and structurally potent.",
+    image: "/process/bottling.jpg",
     specs: [{ label: "State", val: "Raw/Unfiltered" }, { label: "Pasteurized", val: "No" }],
   },
 ];
@@ -566,6 +570,16 @@ export default function HomePage() {
 
               {/* Detail panel */}
               <div ref={processPanel} className="relative h-[560px] sm:h-[500px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl bg-brand-forest scroll-mt-24">
+                <Image
+                  key={PROCESS_STEPS[activeStep].image}
+                  src={PROCESS_STEPS[activeStep].image}
+                  alt={PROCESS_STEPS[activeStep].title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-opacity duration-500"
+                  priority={activeStep === 0}
+                />
+                <div className="absolute inset-0 bg-brand-forest/20" />
                 <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gold/15 blur-3xl pointer-events-none" />
 
                 {/* Segmented progress */}
@@ -1324,3 +1338,4 @@ export default function HomePage() {
     </>
   );
 }
+
