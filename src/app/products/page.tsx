@@ -234,6 +234,7 @@ export default function ProductsPage() {
                             alt={`${product.name} — ${product.size}`}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            unoptimized={/^(https?:)?\/\//.test(product.image) || product.image.startsWith("data:") || product.image.startsWith("blob:")}
                             className="object-contain p-2 drop-shadow-[0_14px_18px_rgba(0,0,0,0.18)] transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
