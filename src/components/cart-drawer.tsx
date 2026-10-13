@@ -105,11 +105,15 @@ export function CartDrawer() {
                   {/* Product block */}
                   <div className="w-16 h-16 rounded-xl bg-brand-forest/8 border border-brand-forest/10 flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
                     {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.size}
-                        className="w-full h-full object-contain"
-                      />
+                      <Image
+  src={item.image}
+  alt={item.size}
+  width={64}
+  height={64}
+  sizes="64px"
+  unoptimized={/^(https?:)?\/\//.test(item.image) || item.image.startsWith("data:") || item.image.startsWith("blob:")}
+  className="w-full h-full object-contain"
+/>
                     ) : (
                       <span className="text-lg font-bold text-brand-forest/30">
                         {item.volumeMl >= 1000
