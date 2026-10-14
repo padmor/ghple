@@ -7,7 +7,7 @@ import { useCart } from "@/context/cart-context";
 import { useManager } from "@/context/manager-context";
 import { BottleIllustration } from "@/components/product/bottle-illustration";
 import { formatGHS } from "@/lib/utils";
-import { ShoppingCart, ArrowRight, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, ArrowRight, Star, ChevronLeft, ChevronRight } from "@/components/ui/icons";
 
 export function ProductsSection() {
   const { addToCart } = useCart();

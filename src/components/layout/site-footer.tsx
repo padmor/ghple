@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Mail, ChevronUp, Facebook, Instagram, MessageCircle, Music2 } from "lucide-react";
+import { MapPin, Phone, Mail, ChevronUp } from "@/components/ui/icons";
 
 export function SiteFooter() {
 
@@ -50,11 +50,11 @@ export function SiteFooter() {
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     {[
-                      { href: "https://wa.me/233507154818", label: "WhatsApp", Icon: MessageCircle, bg: "bg-[#25D366]" },
-                      { href: "https://www.facebook.com/share/1KUHEd8FRx/?mibextid=wwXIfr", label: "Facebook", Icon: Facebook, bg: "bg-[#1877F2]" },
-                      { href: "https://www.instagram.com/gids_apple_cider_vinegar", label: "Instagram", Icon: Instagram, bg: "bg-gradient-to-tr from-[#FEDA75] via-[#D62976] to-[#4F5BD5]" },
-                      { href: "https://www.tiktok.com/@gids.beverage", label: "TikTok", Icon: Music2, bg: "bg-black ring-1 ring-white/30" },
-                    ].map(({ href, label, Icon, bg }) => (
+                      { href: "https://wa.me/233507154818", label: "WhatsApp", icon: "whatsapp" },
+                      { href: "https://www.facebook.com/share/1KUHEd8FRx/?mibextid=wwXIfr", label: "Facebook", icon: "facebook" },
+                      { href: "https://www.instagram.com/gids_apple_cider_vinegar", label: "Instagram", icon: "instagram" },
+                      { href: "https://www.tiktok.com/@gids.beverage", label: "TikTok", icon: "tiktok" },
+                    ].map(({ href, label, icon }) => (
                       <a
                         key={label}
                         href={href}
@@ -62,9 +62,9 @@ export function SiteFooter() {
                         rel="noopener noreferrer"
                         aria-label={label}
                         title={label}
-                        className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shadow-md transition-transform hover:-translate-y-0.5 hover:scale-110 ${bg}`}
+                        className="block rounded-xl transition-transform hover:-translate-y-0.5 hover:scale-110 focus-ring"
                       >
-                        <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        <Image src={`/icons/ui/${icon}.svg`} alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9" />
                       </a>
                     ))}
                   </div>

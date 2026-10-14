@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import { PROCESS_STEPS } from "@/data/home";
 
 export function ProcessSection() {

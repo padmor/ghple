@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, ArrowRight, Phone } from "lucide-react";
+import { MapPin, ArrowRight, Phone } from "@/components/ui/icons";
 import { BRANCHES } from "@/data/home";
 
 export function LocationsSection() {

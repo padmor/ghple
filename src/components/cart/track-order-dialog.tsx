@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Package, CheckCircle, Truck, MapPin } from "lucide-react";
+import { X, Package, CheckCircle, Truck, MapPin } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
 import { formatGHS } from "@/lib/utils";
 

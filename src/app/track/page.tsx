@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Package, Search } from "lucide-react";
+import { ArrowRight, Package, Search } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
-import { useManager } from "@/context/manager-context";
+import { api } from "@/lib/api";
 import { Navbar } from "@/components/layout/navbar";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { CheckoutDialog } from "@/components/cart/checkout-dialog";
@@ -31,69 +31,53 @@ const WHATSAPP = "233507154818";
 
 export default function TrackOrderPage() {
   const { recentOrder } = useCart();
-  const { products } = useManager();
 
   const [input, setInput] = useState("");
   const [searched, setSearched] = useState<string | null>(null);
-  const [demo, setDemo] = useState(false);
+  const [found, setFound] = useState<OrderDetails | null>(null);
+  const [lookupError, setLookupError] = useState(false);
   const [checking, setChecking] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
 
-  // Read ?id= / ?demo=1 from the address; otherwise show the order just placed
+  const lookup = useCallback(
+    async (raw: string) => {
+      const id = raw.trim();
+      setSearched(id);
+      setLookupError(false);
+      setFound(null);
+      if (!id) return;
+      setChecking(true);
+      try {
+        const saved = await api.orders.track(id);
+        if (saved) setFound(saved);
+      } catch {
+        setLookupError(true);
+      } finally {
+        setChecking(false);
+      }
+    },
+    []
+  );
+
+  // Read ?id= from the address; otherwise show the order just placed
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("demo")) setDemo(true);
     const id = params.get("id") || recentOrder?.id || "";
     if (id) {
       setInput(id);
-      setSearched(id);
+      void lookup(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sample: OrderDetails = useMemo(() => {
-    const items = products.slice(0, 2).map((p) => ({ ...p, quantity: 1 }));
-    const subtotal = items.reduce((n, i) => n + i.price * i.quantity, 0);
-    return {
-      id: "GBH-SAMPLE",
-      customerName: "Sample customer",
-      phone: "+233 00 000 0000",
-      region: "Greater Accra",
-      deliveryAddress: "Sample street, Accra",
-      paymentMethod: "momo_mtn",
-      items,
-      subtotal,
-      deliveryFee: 20,
-      total: subtotal + 20,
-      status: "out_for_delivery",
-      createdAt: new Date(Date.now() - 26 * 3600 * 1000).toISOString(),
-    };
-  }, [products]);
-
-  const order: OrderDetails | null = useMemo(() => {
-    if (demo) return sample;
-    if (searched === null) return null;
-    const q = searched.trim().toLowerCase();
-    if (!q) return null;
-    if (recentOrder && recentOrder.id.toLowerCase() === q) return recentOrder;
-    // No backend: show the tracking screen for any ID, with a status picked from the ID
-    const statuses = ["pending_payment", "confirmed", "out_for_delivery", "delivered"] as const;
-    const hash = Array.from(q).reduce((n, c) => n + c.charCodeAt(0), 0);
-    return { ...sample, id: searched.trim().toUpperCase(), status: statuses[hash % statuses.length] };
-  }, [demo, sample, searched, recentOrder]);
-  const isPreview = !!order && order.id !== recentOrder?.id;
+  const order: OrderDetails | null = found;
 
   const stepIndex = order ? Math.max(0, STEPS.findIndex((s) => s.key === order.status)) : -1;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setDemo(false);
-    setChecking(true);
-    setTimeout(() => {
-      setSearched(input.trim());
-      setChecking(false);
-      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 250);
+    await lookup(input);
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -166,24 +150,6 @@ export default function TrackOrderPage() {
                 {checking ? <Spinner /> : <ArrowRight className="h-4 w-4" />}
               </button>
             </form>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-white/70">
-              <span>Try a demo ID:</span>
-              {["GBH-DEMO1", "GBH-DEMO2", "GBH-DEMO3", "GBH-DEMO4"].map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => {
-                    setDemo(false);
-                    setInput(id);
-                    setSearched(id);
-                    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className="rounded-full border border-white/30 px-3 py-1 font-bold text-white transition-colors hover:border-brand-gold hover:text-brand-gold focus-ring"
-                >
-                  {id}
-                </button>
-              ))}
-            </div>
           </header>
 
           <section ref={resultsRef} className="section-container w-full flex-1 scroll-mt-24 py-8 sm:py-10">
@@ -194,18 +160,13 @@ export default function TrackOrderPage() {
               </div>
             ) : order ? (
               <>
-              {isPreview && (
-                <p className="mb-4 rounded-xl border border-brand-gold/40 bg-brand-gold/15 px-4 py-2.5 text-xs font-semibold text-white">
-                  Preview: live order lookup isn&apos;t connected yet, so this screen shows sample details for your ID.
-                </p>
-              )}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 {/* Status */}
                 <div className="rounded-3xl border border-white/70 bg-white p-5 shadow-[0_18px_40px_rgba(0,0,0,0.3)] sm:p-7 lg:col-span-8">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-[11px] font-bold uppercase tracking-widest text-brand-gold">
-                        Order ID{demo ? " · sample" : ""}
+                        Order ID
                       </p>
                       <p className="mt-1 text-2xl font-extrabold tracking-tight text-black">{order.id}</p>
                       <p className="mt-0.5 text-xs text-black/50">
@@ -344,11 +305,13 @@ export default function TrackOrderPage() {
               <div className="mx-auto max-w-xl rounded-3xl border border-white/70 bg-white p-7 text-center shadow-[0_18px_40px_rgba(0,0,0,0.3)] sm:p-9">
                 <Image src="/icons/track/track-parcel.svg" alt="" width={80} height={80} className="mx-auto h-20 w-20" />
                 <h2 className="mt-4 text-lg font-extrabold text-black">
-                  {!searched ? "Enter your order ID" : `No order found for “${searched}”`}
+                  {!searched ? "Enter your order ID" : lookupError ? "We couldn't check right now" : `No order found for “${searched}”`}
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-black/60">
                   {!searched
                     ? "Your order ID is in your confirmation, and starts with GBH-."
+                    : lookupError
+                    ? "Something went wrong reaching our system. Please try again in a moment, or message us and we'll look it up."
                     : "Check the ID and try again. If you've just ordered, it can take a moment to appear — or message us and we'll look it up."}
                 </p>
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -358,7 +321,7 @@ export default function TrackOrderPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white py-1.5 pl-1.5 pr-5 text-sm font-bold text-black transition-all hover:-translate-y-0.5 hover:border-brand-gold"
                   >
-                    <Image src="/icons/contact/contact-chat.svg" alt="" width={32} height={32} className="h-8 w-8" />
+                    <Image src="/icons/contact/whatsapp.svg" alt="" width={32} height={32} className="h-8 w-8" />
                     WhatsApp us
                   </a>
                   <a
@@ -369,13 +332,6 @@ export default function TrackOrderPage() {
                     Email us
                   </a>
                 </div>
-                <Link
-                  href="/track?demo=1"
-                  onClick={() => setDemo(true)}
-                  className="mt-5 inline-block text-xs font-semibold text-black/50 underline decoration-brand-gold decoration-2 underline-offset-4 hover:text-black"
-                >
-                  See what a tracked order looks like
-                </Link>
               </div>
             )}
           </section>

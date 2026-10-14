@@ -65,9 +65,9 @@ const config: Config = {
           charcoal:     "#1C1C1E",   /* near-black – body text */
           mist:         "#F0F4F1",   /* very light green-white – subtle bg */
           /* Manager panel colours */
-          navy:         "#0D1B2A",   /* midnight navy – manager bg */
-          "navy-mid":   "#1A2E42",   /* manager card bg */
-          "navy-light":  "#243D55",  /* manager hover */
+          navy:         "#10261A",   /* deep forest – manager bg */
+          "navy-mid":   "#1A3320",   /* forest – manager cards */
+          "navy-light":  "#2A4F32",  /* forest-mid – manager hover */
         },
       },
       borderRadius: {

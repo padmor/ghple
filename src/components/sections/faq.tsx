@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "@/components/ui/icons";
 import { FAQS } from "@/data/home";
 
 function FAQItem({ q, a }: { q: string; a: string }) {

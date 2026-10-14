@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown } from "@/components/ui/icons";
 
 export function HeroSection() {
 

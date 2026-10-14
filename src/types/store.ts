@@ -14,6 +14,20 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
+export interface OrderLogEntry {
+  at: string;
+  action: string;
+  note?: string;
+}
+
+export interface OrderRefund {
+  status: "requested" | "refunded";
+  reason: string;
+  amount: number;
+  requestedAt: string;
+  refundedAt?: string;
+}
+
 export interface OrderDetails {
   id: string;
   customerName: string;
@@ -27,4 +41,7 @@ export interface OrderDetails {
   total: number;
   status: "pending_payment" | "confirmed" | "out_for_delivery" | "delivered";
   createdAt: string;
+  /** Every action taken on this order, oldest first, so refunds and disputes can be traced */
+  log?: OrderLogEntry[];
+  refund?: OrderRefund;
 }

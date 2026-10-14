@@ -1,30 +1,36 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { SESSION_COOKIE, verifySession } from "@/server/session";
 
-// The manager area is locked on the server, so the password never reaches the browser.
-// Set MANAGER_USER and MANAGER_PASSWORD in your hosting environment (never in the code).
-export function middleware(req: NextRequest) {
-  const user = process.env.MANAGER_USER;
-  const pass = process.env.MANAGER_PASSWORD;
+// Keeps the manager area behind sign-in. Pages redirect to the login page; the
+// manager-only API endpoints check the session themselves (see requireManager).
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const isLogin = pathname === "/manager/login";
 
-  if (!user || !pass) {
-    // Not configured: keep the area closed in production, open while developing
-    if (process.env.NODE_ENV === "production") {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    return NextResponse.next();
+  let session = null;
+  try {
+    session = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
+  } catch {
+    // SESSION_SECRET missing: nobody can be signed in
   }
 
-  const header = req.headers.get("authorization") ?? "";
-  const [scheme, encoded] = header.split(" ");
-  if (scheme === "Basic" && encoded) {
-    const [u, ...rest] = atob(encoded).split(":");
-    if (u === user && rest.join(":") === pass) return NextResponse.next();
+  if (!session && !isLogin) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/manager/login";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
-  return new NextResponse("Authentication required", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="GBHPL Manager", charset="UTF-8"' },
-  });
+  if (session && isLogin) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/manager";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
+  const res = NextResponse.next();
+  res.headers.set("Cache-Control", "no-store");
+  return res;
 }
 
 export const config = { matcher: ["/manager/:path*"] };

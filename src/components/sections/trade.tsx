@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 import { useManager } from "@/context/manager-context";
-import { Phone } from "lucide-react";
+import { Phone } from "@/components/ui/icons";
 
 export function TradeSection() {
   const { settings } = useManager();
@@ -26,8 +27,9 @@ export function TradeSection() {
                   href={`https://wa.me/${(settings.whatsappNumber || "233540000000").replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Hello GBHPL, I would like to inquire about wholesale / trade pricing.")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-forest-outline justify-center bg-white/20"
+                  className="btn-forest-outline justify-center gap-2 bg-white/20"
                 >
+                  <Image src="/icons/contact/whatsapp.svg" alt="" width={24} height={24} className="h-6 w-6" />
                   WhatsApp Inquiries
                 </a>
                 <a

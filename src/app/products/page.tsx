@@ -14,7 +14,7 @@ import {
   ShoppingCart,
   Star,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
 import { useManager } from "@/context/manager-context";
 import { Navbar } from "@/components/layout/navbar";

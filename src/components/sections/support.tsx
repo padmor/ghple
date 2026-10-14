@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowRight, Star } from "lucide-react";
+import { api } from "@/lib/api";
+import { ArrowRight, Star } from "@/components/ui/icons";
 
 export function SupportSection() {
   const [sending, setSending] = useState<"" | "feedback">("");
@@ -35,7 +36,7 @@ export function SupportSection() {
                       href: "https://wa.me/233507154818?text=Hello%20GBHPL%2C%20I%20need%20help%20with%20my%20order.",
                       title: "WhatsApp",
                       sub: "Fastest way to reach us",
-                      icon: "/icons/contact/contact-chat.svg",
+                      icon: "/icons/contact/whatsapp.svg",
                     },
                     {
                       href: "mailto:hello@gbhpl.com?subject=Support%20request",
@@ -73,23 +74,24 @@ export function SupportSection() {
               <form
                 noValidate
                 className="rounded-2xl border border-brand-forest/10 bg-white p-5 sm:p-6 lg:col-span-7"
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   if (sending) return;
-                  const f = new FormData(e.currentTarget);
+                  const form = e.currentTarget;
+                  const f = new FormData(form);
                   setSending("feedback");
-                  const body = [
-                    `Rating: ${feedbackRating}/5`,
-                    `Name: ${f.get("name")}`,
-                    "",
-                    `${f.get("comment")}`,
-                  ].join("\n");
-                  setTimeout(() => {
-                    window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
-                      `Feedback: ${feedbackRating}/5 stars`
-                    )}&body=${encodeURIComponent(body)}`;
+                  try {
+                    await api.forms.submit({
+                      kind: "feedback",
+                      fields: {
+                        rating: String(feedbackRating),
+                        name: String(f.get("name") ?? ""),
+                        comment: String(f.get("comment") ?? ""),
+                      },
+                    });
+                  } finally {
                     setSending("");
-                  }, 400);
+                  }
                 }}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">

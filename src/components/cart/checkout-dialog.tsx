@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
-import { X, CheckCircle } from "lucide-react";
+import { X, CheckCircle, Copy, Check } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
+import { useOrders } from "@/context/orders-context";
 import { formatGHS } from "@/lib/utils";
+import { DELIVERY_FEE } from "@/data/pricing";
+import type { OrderDetails } from "@/types/store";
 
 const GHANA_REGIONS = [
   "Greater Accra",
@@ -34,7 +37,6 @@ const PAYMENT_METHODS = [
   { value: "cash", label: "Cash on Delivery", icon: "/icons/payment/pay-cash.svg", logo: "/icons/logos/cash.png" },
 ];
 
-const DELIVERY_FEE = 20;
 
 type Step = "form" | "review" | "success";
 
@@ -48,6 +50,12 @@ export function CheckoutDialog() {
     setRecentOrder,
     recentOrder,
   } = useCart();
+  const { addOrder, track } = useOrders();
+
+  // Count each time a customer reaches checkout
+  useEffect(() => {
+    if (isCheckoutOpen) track("checkout");
+  }, [isCheckoutOpen, track]);
   const router = useRouter();
 
   const [step, setStep] = useState<Step>("form");
@@ -67,41 +75,58 @@ export function CheckoutDialog() {
   const validate = () => true;
 
   const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  const handleSubmitOrder = () => {
-    if (placing) return;
-    setPlacing(true);
-    setTimeout(() => {
-      setPlacing(false);
-      placeOrder();
-    }, 400);
+  const copyOrderId = async () => {
+    if (!recentOrder) return;
+    try {
+      await navigator.clipboard.writeText(recentOrder.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked: the number is selectable on screen */
+    }
   };
 
-  const placeOrder = () => {
-    const orderId = `GBH-${Date.now().toString(36).toUpperCase()}`;
-    const order = {
-      id: orderId,
-      customerName: form.customerName,
-      phone: form.phone,
-      region: form.region,
-      deliveryAddress: form.deliveryAddress,
-      paymentMethod: form.paymentMethod as any,
-      items: [...items],
-      subtotal,
-      deliveryFee: DELIVERY_FEE,
-      total,
-      status: "pending_payment" as const,
-      createdAt: new Date().toISOString(),
-    };
-    setRecentOrder(order);
-    clearCart();
-    setStep("success");
+  const handleSubmitOrder = async () => {
+    if (placing) return;
+    setPlacing(true);
+    setPlaceError("");
+    try {
+      // The server issues the real order ID and timestamp
+      const saved = await addOrder({
+        customerName: form.customerName,
+        phone: form.phone,
+        region: form.region,
+        deliveryAddress: form.deliveryAddress,
+        paymentMethod: form.paymentMethod as OrderDetails["paymentMethod"],
+        items: [...items],
+        subtotal,
+        deliveryFee: DELIVERY_FEE,
+        total,
+        status: "pending_payment",
+      });
+      setRecentOrder(saved);
+      clearCart();
+      setStep("success");
+    } catch (e) {
+      const status = (e as { status?: number }).status;
+      setPlaceError(
+        status && status < 500
+          ? (e as Error).message
+          : "We couldn't place your order. Please check your connection and try again."
+      );
+    } finally {
+      setPlacing(false);
+    }
   };
 
   const handleClose = () => {
     setIsCheckoutOpen(false);
     setStep("form");
     setErrors({});
+    setPlaceError("");
   };
 
   const handleTrack = () => {
@@ -319,6 +344,11 @@ export function CheckoutDialog() {
                 <p><span className="text-brand-forest/50">Payment:</span> <span className="font-medium text-brand-forest">{PAYMENT_METHODS.find(p => p.value === form.paymentMethod)?.label}</span></p>
               </div>
 
+              {placeError && (
+                <p role="alert" className="rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
+                  {placeError}
+                </p>
+              )}
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setStep("form")}
@@ -354,6 +384,23 @@ export function CheckoutDialog() {
                   to confirm and arrange payment.
                 </p>
               </div>
+              {recentOrder && (
+                <div className="w-full rounded-2xl border border-dashed border-brand-gold bg-brand-gold/10 px-4 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-brand-forest/60">Your order number</p>
+                  <p className="mt-1 select-all font-mono text-xl font-extrabold tracking-wider text-brand-forest">
+                    {recentOrder.id}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={copyOrderId}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-brand-forest/20 px-3 py-1 text-xs font-bold text-brand-forest transition-colors hover:border-brand-gold focus-ring"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Copied" : "Copy"}
+                  </button>
+                  <p className="mt-2 text-xs text-brand-forest/60">Keep it. You need it to track your order.</p>
+                </div>
+              )}
               <div className="flex gap-3 w-full">
                 <button
                   onClick={handleTrack}

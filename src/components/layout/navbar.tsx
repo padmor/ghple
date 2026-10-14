@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
 
 const NAV_LINKS = [

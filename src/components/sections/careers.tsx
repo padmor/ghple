@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowRight } from "lucide-react";
+import { api } from "@/lib/api";
+import { ArrowRight } from "@/components/ui/icons";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { OPENINGS } from "@/data/home";
 
@@ -75,27 +76,26 @@ export function CareersSection() {
               <form
                 noValidate
                 className="space-y-3"
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   if (sending) return;
                   const f = new FormData(e.currentTarget);
                   setSending("join");
-                  const body = [
-                    `Name: ${f.get("name")}`,
-                    `Email: ${f.get("email")}`,
-                    `Phone: ${f.get("phone")}`,
-                    `Role: ${f.get("role")}`,
-                    "",
-                    `${f.get("message")}`,
-                  ].join("\n");
-                  const role = `${f.get("role")}`;
-                  setTimeout(() => {
-                    window.location.href = `mailto:hello@gbhpl.com?subject=${encodeURIComponent(
-                      `Application: ${role}`
-                    )}&body=${encodeURIComponent(body)}`;
-                    setSending("");
+                  try {
+                    await api.forms.submit({
+                      kind: "application",
+                      fields: {
+                        name: String(f.get("name") ?? ""),
+                        email: String(f.get("email") ?? ""),
+                        phone: String(f.get("phone") ?? ""),
+                        role: String(f.get("role") ?? ""),
+                        message: String(f.get("message") ?? ""),
+                      },
+                    });
                     setJoinOpen(false);
-                  }, 400);
+                  } finally {
+                    setSending("");
+                  }
                 }}
               >
                 <select

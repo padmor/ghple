@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useManager } from "@/context/manager-context";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/ui/icons";
 
 export function FounderSection() {
   const { ceo } = useManager();
@@ -17,7 +17,7 @@ export function FounderSection() {
                 {/* Photo */}
                 <div className="flex justify-center lg:justify-start">
                   <div className="relative">
-                    <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-3xl overflow-hidden bg-brand-forest-mid border border-white/10">
+                    <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-3xl overflow-hidden bg-brand-forest-mid border border-white/10">
                       {ceo.photoPath ? (
                         <Image
                           src={ceo.photoPath}

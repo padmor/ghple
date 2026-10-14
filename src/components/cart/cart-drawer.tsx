@@ -3,9 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, Plus, Minus, Trash2, ShoppingCart, ArrowRight } from "lucide-react";
+import { X, Plus, Minus, Trash2, ShoppingCart, ArrowRight } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
 import { formatGHS } from "@/lib/utils";
+import { DELIVERY_FEE } from "@/data/pricing";
 
 export function CartDrawer() {
   const {
@@ -19,7 +20,6 @@ export function CartDrawer() {
     setIsCheckoutOpen,
   } = useCart();
 
-  const DELIVERY_FEE = 20;
   const total = subtotal + (items.length > 0 ? DELIVERY_FEE : 0);
 
   const handleCheckout = () => {
