@@ -76,6 +76,44 @@ export function createHttpApi(baseUrl: string): StoreApi {
           throw e;
         }
       },
+      cancel: (id, phone) =>
+        request<OrderDetails>(`/orders/track/${encodeURIComponent(id.trim())}/cancel`, send("POST", { phone })),
+    },
+
+    payments: {
+      start: async (orderId) => {
+        try {
+          const r = await request<{ url: string }>("/payments/initialize", send("POST", { id: orderId }));
+          return r.url;
+        } catch (e) {
+          // 503 means online payment isn't switched on: carry on as a normal order
+          if ((e as { status?: number }).status === 503) return null;
+          throw e;
+        }
+      },
+      verify: async (orderId) => {
+        try {
+          const r = await request<{ paid: boolean }>(`/payments/verify?id=${encodeURIComponent(orderId)}`);
+          return r.paid;
+        } catch {
+          return false;
+        }
+      },
+    },
+
+    images: {
+      upload: async (file) => {
+        const res = await fetch(`${base}/images`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": file.type || "image/jpeg" },
+          body: file,
+        });
+        if (res.status === 401 && typeof window !== "undefined") window.location.href = "/manager/login";
+        const body = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
+        if (!res.ok || !body?.url) throw new Error(body?.error ?? "Upload failed");
+        return body.url;
+      },
     },
 
     events: {

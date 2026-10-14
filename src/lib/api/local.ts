@@ -132,6 +132,9 @@ export const localApi: StoreApi = {
       const q = id.trim().toLowerCase();
       return wait(orders.find((o) => o.id.toLowerCase() === q) ?? null, 250);
     },
+    async cancel(): Promise<OrderDetails> {
+      throw new Error("Cancelling needs the live server.");
+    },
   },
 
   events: {
@@ -189,6 +192,25 @@ export const localApi: StoreApi = {
       notify();
       return founder;
     },
+  },
+
+  payments: {
+    async start() {
+      return null;
+    },
+    async verify() {
+      return false;
+    },
+  },
+
+  images: {
+    upload: (file: Blob) =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Could not read that file"));
+        reader.readAsDataURL(file);
+      }),
   },
 
   forms: {

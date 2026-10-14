@@ -93,3 +93,19 @@ create table if not exists manager_users (
   created_at     timestamptz not null default now(),
   last_login_at  timestamptz
 );
+
+-- Added after launch: customer email, payment tracking, cancelled orders, uploaded photos
+alter table orders add column if not exists email text not null default '';
+alter table orders add column if not exists paid_at timestamptz;
+alter table orders add column if not exists payment_ref text;
+alter table orders drop constraint if exists orders_status_check;
+alter table orders add constraint orders_status_check
+  check (status in ('pending_payment', 'confirmed', 'out_for_delivery', 'delivered', 'cancelled'));
+
+-- Product photos uploaded by the manager (served from /api/images/:id)
+create table if not exists images (
+  id          text primary key,
+  mime        text not null,
+  data        bytea not null,
+  created_at  timestamptz not null default now()
+);

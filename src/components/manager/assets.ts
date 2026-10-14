@@ -12,4 +12,5 @@ export const STATUS_ICON: Record<OrderDetails["status"], string> = {
   confirmed: "/icons/track/track-confirmed.svg",
   out_for_delivery: "/icons/track/track-delivery.svg",
   delivered: "/icons/track/track-delivered.svg",
+  cancelled: "/icons/track/track-cancelled.svg",
 };

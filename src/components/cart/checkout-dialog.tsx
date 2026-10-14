@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
 import { X, CheckCircle, Copy, Check } from "@/components/ui/icons";
 import { useCart } from "@/context/cart-context";
+import { api } from "@/lib/api";
 import { useOrders } from "@/context/orders-context";
 import { formatGHS } from "@/lib/utils";
 import { DELIVERY_FEE } from "@/data/pricing";
@@ -62,6 +63,7 @@ export function CheckoutDialog() {
   const [form, setForm] = useState({
     customerName: "",
     phone: "",
+    email: "",
     region: "",
     deliveryAddress: "",
     paymentMethod: "momo_mtn",
@@ -77,6 +79,8 @@ export function CheckoutDialog() {
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [payFailed, setPayFailed] = useState(false);
 
   const copyOrderId = async () => {
     if (!recentOrder) return;
@@ -93,11 +97,13 @@ export function CheckoutDialog() {
     if (placing) return;
     setPlacing(true);
     setPlaceError("");
+    let leaving = false;
     try {
       // The server issues the real order ID and timestamp
       const saved = await addOrder({
         customerName: form.customerName,
         phone: form.phone,
+        email: form.email,
         region: form.region,
         deliveryAddress: form.deliveryAddress,
         paymentMethod: form.paymentMethod as OrderDetails["paymentMethod"],
@@ -109,6 +115,23 @@ export function CheckoutDialog() {
       });
       setRecentOrder(saved);
       clearCart();
+
+      // Mobile money: hand over to the payment page. If online payment is off
+      // (or fails), the order is still saved and the customer sees it below.
+      if (saved.paymentMethod !== "cash") {
+        try {
+          const payUrl = await api.payments.start(saved.id);
+          if (payUrl) {
+            // Keep the spinner up while the browser leaves for the payment page
+            leaving = true;
+            setRedirecting(true);
+            window.location.href = payUrl;
+            return;
+          }
+        } catch {
+          setPayFailed(true);
+        }
+      }
       setStep("success");
     } catch (e) {
       const status = (e as { status?: number }).status;
@@ -118,7 +141,7 @@ export function CheckoutDialog() {
           : "We couldn't place your order. Please check your connection and try again."
       );
     } finally {
-      setPlacing(false);
+      if (!leaving) setPlacing(false);
     }
   };
 
@@ -212,6 +235,7 @@ export function CheckoutDialog() {
             <form noValidate className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (validate()) setStep("review"); }}>
               {field("customerName", "Full Name", "text", "e.g. Ama Mensah")}
               {field("phone", "Phone Number", "tel", "e.g. 0244 000 000")}
+              {field("email", "Email (optional, for your receipt)", "email", "you@example.com")}
 
               <div className="space-y-1.5">
                 <label htmlFor="region" className="block text-sm font-semibold text-brand-forest">
@@ -364,7 +388,7 @@ export function CheckoutDialog() {
                   className="btn-gold flex-1 justify-center gap-2 text-sm py-2.5 disabled:cursor-wait disabled:opacity-80"
                 >
                   {placing && <Spinner />}
-                  {placing ? "Placing order…" : "Confirm Order"}
+                  {redirecting ? "Opening payment…" : placing ? "Placing order…" : "Confirm Order"}
                 </button>
               </div>
             </div>
@@ -383,6 +407,11 @@ export function CheckoutDialog() {
                   <span className="font-semibold text-brand-forest">{form.phone}</span>{" "}
                   to confirm and arrange payment.
                 </p>
+                {payFailed && (
+                  <p className="mt-2 text-xs font-semibold text-amber-700">
+                    We couldn&apos;t open the online payment page. You can pay from the Track Order page.
+                  </p>
+                )}
               </div>
               {recentOrder && (
                 <div className="w-full rounded-2xl border border-dashed border-brand-gold bg-brand-gold/10 px-4 py-3">

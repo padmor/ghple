@@ -50,6 +50,9 @@ export const toOrder = (r: Row, log: OrderLogEntry[] = []): OrderDetails => ({
   deliveryFee: Number(r.delivery_fee),
   total: Number(r.total),
   status: r.status as OrderDetails["status"],
+  paid: Boolean(r.paid_at),
+  paidAt: r.paid_at ? iso(r.paid_at) : undefined,
+  email: String(r.email ?? ""),
   refund: (r.refund as OrderRefund | null) ?? undefined,
   createdAt: iso(r.created_at),
   log,
@@ -63,6 +66,8 @@ export function publicOrder(o: OrderDetails): OrderDetails {
     customerName: o.customerName.split(" ")[0] ?? "",
     phone: digits.length >= 3 ? `•••• ${digits.slice(-3)}` : "",
     deliveryAddress: "",
+    email: "",
+    paidAt: undefined,
     log: [],
     refund: undefined,
   };

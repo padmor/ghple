@@ -3,6 +3,8 @@
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, Upload, X } from "@/components/ui/icons";
+import { api } from "@/lib/api";
+import { Spinner } from "@/components/ui/spinner";
 import { useManager } from "@/context/manager-context";
 import { formatGHS } from "@/lib/utils";
 import { Product } from "@/data/defaults";
@@ -81,16 +83,44 @@ export default function ProductsPage() {
     setEditing(p);
   };
 
-  const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  // Shrink big phone photos in the browser first, then store them on the server
+  const shrink = (file: File) =>
+    new Promise<Blob>((resolve) => {
+      const img = new window.Image();
+      const src = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, 1400 / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(src);
+        canvas.toBlob((b) => resolve(b ?? file), "image/webp", 0.85);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(src);
+        resolve(file);
+      };
+      img.src = src;
+    });
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const data = ev.target?.result as string;
-      if (data) setDraft((d) => ({ ...d, image: data }));
-    };
-    reader.readAsDataURL(file);
     e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const url = await api.images.upload(await shrink(file));
+      setDraft((d) => ({ ...d, image: url }));
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const canSave = draft.size.trim().length > 0 && draft.price > 0;
@@ -280,15 +310,17 @@ export default function ProductsPage() {
                     </button>
                   ))}
                 </div>
-                <input type="file" ref={fileRef} onChange={upload} accept="image/*" className="hidden" />
+                <input type="file" ref={fileRef} onChange={upload} accept="image/jpeg,image/png,image/webp" className="hidden" />
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:border-brand-gold hover:text-brand-gold focus-ring"
                 >
-                  <Upload className="h-3.5 w-3.5" />
-                  Upload photo
+                  {uploading ? <Spinner /> : <Upload className="h-3.5 w-3.5" />}
+                  {uploading ? "Uploading…" : "Upload photo"}
                 </button>
+                {uploadError && <p className="mt-2 text-xs text-red-400">{uploadError}</p>}
               </div>
             </div>
           </div>

@@ -39,6 +39,12 @@ export default function TrackOrderPage() {
   const [checking, setChecking] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
 
+  const [showCancel, setShowCancel] = useState(false);
+  const [cancelPhone, setCancelPhone] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [paying, setPaying] = useState(false);
+
   const lookup = useCallback(
     async (raw: string) => {
       const id = raw.trim();
@@ -65,7 +71,13 @@ export default function TrackOrderPage() {
     const id = params.get("id") || recentOrder?.id || "";
     if (id) {
       setInput(id);
-      void lookup(id);
+      // Coming back from the payment page: confirm the payment first, then show the order
+      if (params.get("paid")) {
+        setChecking(true);
+        void api.payments.verify(id).finally(() => lookup(id));
+      } else {
+        void lookup(id);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -73,6 +85,41 @@ export default function TrackOrderPage() {
   const order: OrderDetails | null = found;
 
   const stepIndex = order ? Math.max(0, STEPS.findIndex((s) => s.key === order.status)) : -1;
+
+  const cancelled = order?.status === "cancelled";
+  const canCancel = !!order && order.status === "pending_payment" && !order.paid;
+  const canPay = canCancel && order.paymentMethod !== "cash";
+
+  const cancelOrder = async () => {
+    if (!order || cancelling) return;
+    setCancelling(true);
+    setActionError("");
+    try {
+      setFound(await api.orders.cancel(order.id, cancelPhone));
+      setShowCancel(false);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "We could not cancel this order.");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const payNow = async () => {
+    if (!order || paying) return;
+    setPaying(true);
+    setActionError("");
+    try {
+      const url = await api.payments.start(order.id);
+      if (url) {
+        window.location.href = url;
+        return;
+      }
+      setActionError("Online payment isn't available right now. We'll contact you to arrange payment.");
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "We could not open the payment page.");
+    }
+    setPaying(false);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,13 +227,28 @@ export default function TrackOrderPage() {
                         })}
                       </p>
                     </div>
-                    <span className="rounded-full bg-brand-forest px-3.5 py-1.5 text-xs font-bold text-brand-gold">
-                      {STEPS[stepIndex].label}
+                    <span className="flex flex-wrap items-center gap-2">
+                      {order.paid && (
+                        <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800">Paid</span>
+                      )}
+                      <span
+                        className={`rounded-full px-3.5 py-1.5 text-xs font-bold ${
+                          cancelled ? "bg-red-100 text-red-800" : "bg-brand-forest text-brand-gold"
+                        }`}
+                      >
+                        {cancelled ? "Cancelled" : STEPS[stepIndex].label}
+                      </span>
                     </span>
                   </div>
 
+                  {cancelled && (
+                    <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-900">
+                      This order was cancelled. If you think this is a mistake, message us and we will help.
+                    </p>
+                  )}
+
                   {/* Timeline */}
-                  <ol className="mt-7 flex flex-col gap-6 md:flex-row md:gap-0">
+                  <ol className={`mt-7 flex-col gap-6 md:flex-row md:gap-0 ${cancelled ? "hidden" : "flex"}`}>
                     {STEPS.map((step, i) => {
                       const done = i <= stepIndex;
                       const current = i === stepIndex;
@@ -234,6 +296,61 @@ export default function TrackOrderPage() {
                       );
                     })}
                   </ol>
+
+                  {(canPay || canCancel) && (
+                    <div className="mt-6 rounded-2xl border border-black/10 bg-[#fbf8ee] p-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {canPay && (
+                          <button
+                            type="button"
+                            onClick={payNow}
+                            disabled={paying}
+                            className="btn-gold gap-2 px-5 py-2.5 text-sm font-bold disabled:cursor-wait disabled:opacity-80"
+                          >
+                            {paying && <Spinner />}
+                            {paying ? "Opening payment…" : `Pay ${formatGHS(order.total)} now`}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCancel((v) => !v);
+                            setActionError("");
+                          }}
+                          className="rounded-full border border-black/15 bg-white px-5 py-2.5 text-sm font-bold text-black transition-colors hover:border-red-400 hover:text-red-700"
+                        >
+                          Cancel order
+                        </button>
+                      </div>
+                      {showCancel && (
+                        <div className="mt-4 space-y-2">
+                          <label htmlFor="cancel-phone" className="block text-xs font-semibold text-black/70">
+                            Enter the phone number you ordered with to confirm
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            <input
+                              id="cancel-phone"
+                              type="tel"
+                              value={cancelPhone}
+                              onChange={(e) => setCancelPhone(e.target.value)}
+                              placeholder="e.g. 0244 000 000"
+                              className="min-w-0 flex-1 rounded-full border border-black/15 bg-white px-4 py-2.5 text-sm outline-none focus:ring-4 focus:ring-brand-gold/40"
+                            />
+                            <button
+                              type="button"
+                              onClick={cancelOrder}
+                              disabled={cancelling || !cancelPhone.trim()}
+                              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {cancelling && <Spinner />}
+                              {cancelling ? "Cancelling…" : "Yes, cancel it"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {actionError && <p className="mt-3 text-sm font-medium text-red-700">{actionError}</p>}
+                    </div>
+                  )}
 
                   {/* Delivery */}
                   <div className="mt-8 grid grid-cols-1 gap-3 border-t border-dashed border-black/15 pt-5 text-sm sm:grid-cols-2">

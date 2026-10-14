@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   changes: z
     .object({
-      status: z.enum(["pending_payment", "confirmed", "out_for_delivery", "delivered"]).optional(),
+      status: z.enum(["pending_payment", "confirmed", "out_for_delivery", "delivered", "cancelled"]).optional(),
       refund: z
         .object({
           status: z.enum(["requested", "refunded"]),

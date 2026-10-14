@@ -22,6 +22,7 @@ const STATUSES: { value: OrderDetails["status"]; label: string }[] = [
   { value: "confirmed", label: "Confirmed" },
   { value: "out_for_delivery", label: "Out for delivery" },
   { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 const REFUND_REASONS = ["Customer cancelled", "Wrong item sent", "Damaged in delivery", "Late delivery", "Paid twice", "Other"];
@@ -39,7 +40,18 @@ function StatusPill({ order }: { order: OrderDetails }) {
   if (order.refund?.status === "requested")
     return <span className="rounded-full bg-orange-500/15 px-2.5 py-0.5 text-[11px] font-bold text-orange-300">Refund requested</span>;
   const label = STATUSES.find((s) => s.value === order.status)?.label ?? order.status;
-  return <span className="rounded-full bg-brand-gold/15 px-2.5 py-0.5 text-[11px] font-bold text-brand-gold">{label}</span>;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+          order.status === "cancelled" ? "bg-red-500/15 text-red-300" : "bg-brand-gold/15 text-brand-gold"
+        }`}
+      >
+        {label}
+      </span>
+      {order.paid && <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">Paid</span>}
+    </span>
+  );
 }
 
 export default function OrdersPage() {
@@ -312,8 +324,15 @@ export default function OrdersPage() {
                   <dd className="flex items-center justify-end gap-2 text-right font-semibold text-white">
                     <Image src={PAYMENT_ICON[order.paymentMethod]} alt="" width={28} height={28} className="h-7 w-7" />
                     {PAYMENT_LABEL[order.paymentMethod]}
+                    {order.paid ? " · Paid" : ""}
                   </dd>
                 </div>
+                {order.email && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-white/55">Email</dt>
+                    <dd className="break-all text-right font-semibold text-white">{order.email}</dd>
+                  </div>
+                )}
               </dl>
             </section>
 

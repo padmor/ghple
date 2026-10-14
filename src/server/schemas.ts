@@ -9,7 +9,7 @@ export const productFields = {
   price: z.number().min(0).max(1_000_000),
   description: z.string().max(1000),
   badge: clearable(40),
-  // Uploaded photos arrive as data URLs; keep them small until image storage is added
-  image: clearable(1_500_000),
+  // An address only: a bundled picture (/images/...) or an upload (/api/images/...)
+  image: clearable(500),
   inStock: z.boolean(),
 };

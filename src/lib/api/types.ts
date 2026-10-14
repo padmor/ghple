@@ -40,6 +40,20 @@ export interface StoreApi {
     update(id: string, changes: Partial<OrderDetails>, entry: Omit<OrderLogEntry, "at">): Promise<OrderDetails>;
     /** Public lookup by order ID for the Track page. Returns null when not found. */
     track(id: string): Promise<OrderDetails | null>;
+    /** Customer cancels their own unpaid order; the phone number used at checkout proves it is theirs. */
+    cancel(id: string, phone: string): Promise<OrderDetails>;
+  };
+
+  payments: {
+    /** Starts an online payment. Returns the page to send the customer to, or null when online payment is off. */
+    start(orderId: string): Promise<string | null>;
+    /** After the customer returns: has the payment gone through? */
+    verify(orderId: string): Promise<boolean>;
+  };
+
+  images: {
+    /** Manager only. Stores a photo and returns the address to save on the product. */
+    upload(file: Blob): Promise<string>;
   };
 
   events: {

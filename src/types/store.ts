@@ -39,7 +39,12 @@ export interface OrderDetails {
   subtotal: number;
   deliveryFee: number;
   total: number;
-  status: "pending_payment" | "confirmed" | "out_for_delivery" | "delivered";
+  status: "pending_payment" | "confirmed" | "out_for_delivery" | "delivered" | "cancelled";
+  /** True once an online payment has been confirmed */
+  paid?: boolean;
+  paidAt?: string;
+  /** Optional, used for order emails */
+  email?: string;
   createdAt: string;
   /** Every action taken on this order, oldest first, so refunds and disputes can be traced */
   log?: OrderLogEntry[];

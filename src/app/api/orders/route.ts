@@ -5,6 +5,7 @@ import { requireManager } from "@/server/auth";
 import { fail, json, limited, clientIp, readJson } from "@/server/http";
 import { toLogEntry, toOrder, toProduct } from "@/server/mappers";
 import { DELIVERY_FEE } from "@/data/pricing";
+import { notifyOrderPlaced } from "@/server/email";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   customerName: z.string().trim().max(120).default(""),
   phone: z.string().trim().max(40).default(""),
+  email: z.string().trim().max(200).default(""),
   region: z.string().trim().max(80).default(""),
   deliveryAddress: z.string().trim().max(300).default(""),
   paymentMethod: z.enum(["momo_mtn", "momo_telecel", "momo_at", "cash"]),
@@ -58,8 +60,8 @@ export async function POST(req: Request) {
   // One statement, so the order and its first log line are saved together or not at all
   const [row] = await query(
     `with o as (
-       insert into orders (id, customer_name, phone, region, delivery_address, payment_method, items, subtotal, delivery_fee, total)
-       values ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)
+       insert into orders (id, customer_name, phone, email, region, delivery_address, payment_method, items, subtotal, delivery_fee, total)
+       values ($1, $2, $3, $12, $4, $5, $6, $7::jsonb, $8, $9, $10)
        returning *
      ), l as (
        insert into order_log (order_id, action, note)
@@ -78,14 +80,17 @@ export async function POST(req: Request) {
       DELIVERY_FEE,
       total,
       `${input.customerName || "Customer"} · ${input.phone || "no phone"} · ${input.paymentMethod}`,
+      input.email.includes("@") ? input.email : "",
     ]
   );
 
   await query("insert into events (type, label) values ('order', $1)", [id]);
 
   const log = (await query("select * from order_log where order_id = $1 order by at, id", [id])).map(toLogEntry);
+  const order = toOrder(row, log);
+  await notifyOrderPlaced(order);
   // The customer who just placed it gets their own details back in full
-  return json(toOrder(row, log), 201);
+  return json(order, 201);
 }
 
 /** Manager: every order, newest first, each with its full activity log. */

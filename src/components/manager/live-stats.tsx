@@ -22,6 +22,7 @@ const STATUS_LABEL: Record<OrderDetails["status"], string> = {
   confirmed: "Confirmed",
   out_for_delivery: "Out for delivery",
   delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const EVENT_COPY: Record<LiveEvent["type"], (e: LiveEvent) => string> = {
@@ -117,7 +118,7 @@ export function LiveStats() {
   }, []);
 
   const stats = useMemo(() => {
-    const revenue = orders.reduce((n, o) => n + o.total, 0);
+    const revenue = orders.reduce((n, o) => (o.status === "cancelled" ? n : n + o.total), 0);
     const itemsSold = orders.reduce((n, o) => n + o.items.reduce((m, i) => m + i.quantity, 0), 0);
 
     const byProduct = new Map<string, { qty: number; money: number }>();
