@@ -8,3 +8,4 @@ coverage/
 Thumbs.db
 .anima/
 .next/
+tsconfig.tsbuildinfo
