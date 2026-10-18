@@ -56,6 +56,7 @@ export const toOrder = (r: Row, log: OrderLogEntry[] = []): OrderDetails => ({
   fulfillment: (r.fulfillment as OrderDetails["fulfillment"]) ?? "delivery",
   delivery: (r.delivery as OrderDetails["delivery"] | null) ?? undefined,
   paid: Boolean(r.paid_at),
+  paymentStarted: Boolean(r.payment_ref),
   paidAt: r.paid_at ? iso(r.paid_at) : undefined,
   email: String(r.email ?? ""),
   refund: (r.refund as OrderRefund | null) ?? undefined,

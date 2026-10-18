@@ -92,6 +92,7 @@ export function CheckoutDialog() {
   const [payMessage, setPayMessage] = useState("");
   const [otp, setOtp] = useState("");
   const [payBusy, setPayBusy] = useState(false);
+  const [notYet, setNotYet] = useState(false);
 
   // While the customer approves on their phone, check every few seconds
   useEffect(() => {
@@ -117,6 +118,24 @@ export function CheckoutDialog() {
       clearInterval(timer);
     };
   }, [step, payNext, recentOrder]);
+
+  /** Customer says they approved: ask right now instead of waiting for the next automatic check */
+  const checkNow = async () => {
+    if (!recentOrder || payBusy) return;
+    setPayBusy(true);
+    setNotYet(false);
+    const { state, message } = await api.payments.verify(recentOrder.id);
+    setPayBusy(false);
+    if (state === "paid") {
+      setPaid(true);
+      setStep("success");
+    } else if (state === "failed") {
+      setPayMessage(message ?? "The payment was not approved.");
+      setPayNext("failed");
+    } else {
+      setNotYet(true);
+    }
+  };
 
   const applyCharge = (r: { next: "approve" | "otp" | "paid" | "failed"; message?: string }) => {
     setPayMessage(r.message ?? "");
@@ -565,9 +584,29 @@ export function CheckoutDialog() {
                       <span className="font-bold text-brand-forest">{form.phone}</span> by entering your MoMo PIN.
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={checkNow}
+                    disabled={payBusy}
+                    className="btn-gold w-full justify-center gap-2 rounded-xl py-3 text-sm font-bold disabled:opacity-70"
+                  >
+                    {payBusy && <Spinner />}
+                    {payBusy ? "Checking…" : "I've approved. Check now"}
+                  </button>
+                  {notYet && <p className="text-xs font-medium text-amber-700">We have not received it yet. Approve the prompt on your phone, then tap again.</p>}
                   <p className="rounded-full bg-brand-forest/[0.06] px-4 py-2 text-xs font-medium text-brand-forest/60">
-                    This page updates by itself once you approve.
+                    This page also updates by itself once you approve.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPayMessage("");
+                      setPayNext("failed");
+                    }}
+                    className="text-xs font-semibold text-brand-forest/60 underline underline-offset-4"
+                  >
+                    Having a problem? See other options
+                  </button>
                   <p className="text-[11px] leading-relaxed text-brand-forest/45">
                     No prompt? On MTN, dial <span className="font-bold text-brand-forest/70">*170#</span>, then My Wallet, then My Approvals.
                   </p>

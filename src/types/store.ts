@@ -63,6 +63,8 @@ export interface OrderDetails {
   location?: OrderLocation;
   fulfillment?: "delivery" | "pickup";
   delivery?: OrderDelivery;
+  /** A payment attempt was started (a prompt was sent or a payment page opened) */
+  paymentStarted?: boolean;
   paid?: boolean;
   paidAt?: string;
   /** Optional, used for order emails */
