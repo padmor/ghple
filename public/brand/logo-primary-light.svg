@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" width="420" height="120" role="img" aria-label="GBHPL — Gid's Apple Cider Vinegar">
+  <rect width="120" height="120" rx="28" fill="#1A3320"/>
+  <path d="M60 38C52 30 34 32 30 52C26 74 40 94 52 94C56 94 58 92 60 92C62 92 64 94 68 94C80 94 94 74 90 52C86 32 68 30 60 38Z" fill="#D4A017"/>
+  <path d="M60 38C60 32 59 28 57 24" stroke="#A07A10" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M62 34C62 24 70 18 82 18C82 29 74 35 62 34Z" fill="#7A9E6E"/>
+  <path d="M71.500 55A14 14 0 1 0 74 64H62" stroke="#1A3320" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="140" y="68" font-family="Outfit, Montserrat, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="1" fill="#fff">GBHPL</text>
+  <text x="142" y="94" font-family="Outfit, Montserrat, Arial, sans-serif" font-size="12.500" font-weight="600" letter-spacing="3.200" textLength="270" lengthAdjust="spacing" fill="#E8B830">GID'S APPLE CIDER VINEGAR</text>
+</svg>

@@ -1,0 +1,370 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts loaded via next/font in layout.tsx ── */
+
+@layer base {
+  :root {
+    /* shadcn/ui tokens mapped to Deep Forest & Gold palette */
+    --background:  40 60% 99%;          /* warm ivory white */
+    --foreground:  130 30% 12%;         /* near-black with forest tint */
+
+    --card:        40 50% 98%;
+    --card-foreground: 130 30% 12%;
+
+    --popover:     0 0% 100%;
+    --popover-foreground: 130 30% 12%;
+
+    --primary:     44 80% 46%;          /* palm gold #D4A017 */
+    --primary-foreground: 130 30% 10%; /* dark forest on gold */
+
+    --secondary:   130 22% 24%;         /* forest green */
+    --secondary-foreground: 40 60% 97%;
+
+    --muted:       40 20% 94%;
+    --muted-foreground: 130 8% 44%;
+
+    --accent:      24 66% 47%;          /* terracotta */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border:      130 12% 88%;
+    --input:       130 12% 86%;
+    --ring:        44 80% 46%;          /* gold focus ring */
+
+    --radius: 0.75rem;
+  }
+
+  /* Manager panel dark theme */
+  .manager-theme {
+    --background:  140 38% 10%;         /* deep forest */
+    --foreground:  40 60% 97%;
+    --card:        138 33% 15%;
+    --card-foreground: 40 60% 97%;
+    --primary:     44 80% 46%;          /* gold stays */
+    --primary-foreground: 130 30% 10%;
+    --secondary:   138 30% 20%;
+    --secondary-foreground: 40 40% 92%;
+    --muted:       138 28% 18%;
+    --muted-foreground: 40 15% 70%;
+    --border:      138 25% 24%;
+    --input:       138 28% 18%;
+    --ring:        44 80% 46%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-outfit), system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Form controls do not inherit the page font by default; make them match the site */
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  /* Headings use display weight */
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* ── Navbar glass effect ── */
+  .nav-glass {
+    background: rgba(255, 248, 240, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(26, 51, 32, 0.08);
+  }
+
+  .nav-glass-dark {
+    background: rgba(26, 51, 32, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* ── Gold CTA button ── */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-brand-gold text-brand-forest font-semibold
+           px-6 py-3 text-sm
+           shadow-gold-sm
+           transition-all duration-200
+           hover:bg-brand-gold-light hover:shadow-gold-md hover:-translate-y-0.5
+           active:translate-y-0 active:shadow-gold-sm
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold;
+  }
+
+  /* ── Forest outline button ── */
+  .btn-forest-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           border-2 border-brand-forest text-brand-forest font-semibold
+           px-6 py-3 text-sm
+           transition-all duration-200
+           hover:bg-brand-forest hover:text-white hover:-translate-y-0.5
+           active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-forest;
+  }
+
+  /* ── White outline button (for dark backgrounds) ── */
+  .btn-white-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           border-2 border-white text-white font-semibold
+           px-6 py-3 text-sm
+           transition-all duration-200
+           hover:bg-white hover:text-brand-forest hover:-translate-y-0.5
+           active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white;
+  }
+
+  /* ── Section wrapper ── */
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Card base ── */
+  .card-base {
+    @apply rounded-xl bg-white border border-border shadow-card
+           transition-shadow duration-200 hover:shadow-card-hover;
+  }
+
+  /* ── Gold badge pill ── */
+  .badge-gold {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           bg-brand-gold/15 text-brand-gold-deep
+           text-xs font-semibold tracking-wide uppercase
+           px-3 py-1 border border-brand-gold/30;
+  }
+
+  /* ── Terracotta badge ── */
+  .badge-terracotta {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           bg-brand-terracotta/15 text-brand-terracotta
+           text-xs font-semibold tracking-wide uppercase
+           px-3 py-1 border border-brand-terracotta/30;
+  }
+
+  /* ── Section label (small uppercase above heading) ── */
+  .section-label {
+    @apply text-xs font-bold tracking-widest uppercase text-brand-gold;
+  }
+
+  /* ── Divider line with gold centre dot ── */
+  .gold-divider {
+    @apply flex items-center gap-3 my-6;
+  }
+  .gold-divider::before,
+  .gold-divider::after {
+    content: "";
+    @apply flex-1 h-px bg-border;
+  }
+
+  /* ── Process step circle ── */
+  .step-circle {
+    @apply flex-shrink-0 w-10 h-10 rounded-full
+           bg-brand-forest text-white font-bold text-sm
+           flex items-center justify-center
+           ring-4 ring-brand-forest/20;
+  }
+
+  /* ── Form input ── */
+  .form-input {
+    @apply w-full rounded-lg border border-input bg-background
+           px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent;
+  }
+
+  /* ── Manager sidebar link ── */
+  .manager-nav-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-full
+           text-sm font-semibold text-white/75
+           transition-colors duration-150
+           hover:bg-brand-navy-light hover:text-white;
+  }
+  .manager-nav-link.active {
+    @apply bg-brand-gold text-brand-forest shadow-sm;
+  }
+
+  /* ── Responsive image fill util ── */
+  .img-cover {
+    @apply absolute inset-0 w-full h-full object-cover object-center;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Smooth underline on hover */
+  .underline-hover {
+    @apply relative after:absolute after:bottom-0 after:left-0
+           after:h-0.5 after:w-0 after:bg-current
+           after:transition-all after:duration-200
+           hover:after:w-full;
+  }
+
+  /* Text shadow for hero overlay readability */
+  .text-shadow-sm {
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .text-shadow-md {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+  }
+
+  /* Gradient text */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold
+           bg-clip-text text-transparent;
+  }
+
+  /* Focus ring for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-gold focus-visible:ring-offset-2;
+  }
+
+  /* Animate on scroll (triggered by JS adding .visible class) */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Prevent layout shift for fixed navbar ── */
+.navbar-spacer {
+  height: 68px; /* matches navbar height */
+}
+
+/* ── Drawer overlay ── */
+.drawer-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* ── Cart quantity badge ── */
+.cart-badge {
+  @apply absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full
+         bg-brand-terracotta text-white text-[10px] font-bold
+         flex items-center justify-center;
+}
+
+/* ── Manager PIN input ── */
+.pin-input {
+  @apply w-14 h-14 text-center text-2xl font-bold rounded-xl
+         border-2 border-brand-navy-light bg-brand-navy-mid
+         text-white focus:border-brand-gold focus:outline-none
+         transition-colors duration-150;
+}
+
+/* Phones: hide scrollbars everywhere (scrolling still works) */
+@media (max-width: 767px) {
+  * { scrollbar-width: none; -ms-overflow-style: none; }
+  *::-webkit-scrollbar { display: none; }
+}
+
+
+/* ── Motion ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Lenis smooth scrolling */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ── Manager backdrop ── */
+.manager-dots {
+  background-image: radial-gradient(rgba(255, 248, 240, 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  mask-image: linear-gradient(to bottom, #000, transparent 70%);
+}
+/* Cards float slightly above the backdrop */
+.manager-theme .bg-brand-navy-mid {
+  background-color: rgb(26 51 32 / 0.8);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Checkout slides up from the bottom on phones */
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.sheet-in { animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+@media (min-width: 640px) {
+  .sheet-in { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in { animation: none; }
+}
+
+/* ── Apple loader ── */
+@keyframes apple-fill {
+  0%   { transform: translateY(70px); opacity: 1; }
+  62%  { transform: translateY(0);    opacity: 1; }
+  86%  { transform: translateY(0);    opacity: 1; }
+  100% { transform: translateY(0);    opacity: 0; }
+}
+@keyframes apple-leaf {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(9deg); }
+}
+@keyframes apple-bob {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  45%      { transform: translateY(-3%) scale(0.99, 1.02); }
+  70%      { transform: translateY(0) scale(1.02, 0.98); }
+}
+.apple-loader { animation: apple-bob 1.7s ease-in-out infinite; transform-origin: 50% 100%; }
+.apple-loader-fill { animation: apple-fill 1.7s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+.apple-loader-leaf { animation: apple-leaf 1.7s ease-in-out infinite; transform-origin: 62px 34px; }
+@media (prefers-reduced-motion: reduce) {
+  .apple-loader, .apple-loader-leaf { animation: none; }
+  .apple-loader-fill { animation: none; transform: translateY(24px); }
+}
+
+/* Outline button for dark green surfaces (checkout) */
+.btn-ghost-light {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10;
+}
